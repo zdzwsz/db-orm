@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "node ./test.js",
-    "start": "node ./index.js"
+    "test": "node ./server/test.js",
+    "start": "node ./server/index.js"
   },
   "keywords": [],
   "author": "",
