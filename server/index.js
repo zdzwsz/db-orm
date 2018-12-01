@@ -12,7 +12,7 @@ app.use(bodyParser.json());
 app.use(morgan('dev'));
 
 app.get('/', function (req, res) {
-    res.send('JWT 授权访问的API路径 http://localhost:' + config.network.port + '/api');
+    res.send('JWT 授权访问服务路径 http://ip:' + config.network.port + '/data');
 });
 
 app.post('/auth', function (req, res) {
@@ -24,7 +24,7 @@ app.post('/auth', function (req, res) {
         if (config.usses.password != password) {
             res.json({ success: false, message: '用户密码错误' });
         } else {
-            var token = jwt.sign({"user":"admin"}, config.jwtsecret, {
+            var token = jwt.sign({ "user": "admin" }, config.jwtsecret, {
                 expiresIn: 60 * 60 * 24// 授权时效24小时
             });
             res.json({
@@ -36,39 +36,8 @@ app.post('/auth', function (req, res) {
     }
 });
 
-//  localhost:端口号/api 路径路由定义
-var apiRoutes = express.Router();
-apiRoutes.use(function (req, res, next) {
-    // 拿取token 数据 按照自己传递方式写
-    var token = req.body.token || req.query.token || req.headers['x-access-token'];
-    if (token) {
-        jwt.verify(token, config.jwtsecret, function (err, decoded) {
-            if (err) {
-                return res.json({ success: false, message: '无效的token.' });
-            } else {
-                req.decoded = decoded;
-                next(); //继续下一步路由
-            }
-        });
-    } else {
-        // 没有拿到token 返回错误 
-        return res.status(403).send({
-            success: false,
-            message: '没有找到token.'
-        });
-    }
-});
-
-//API跟路径返回内容
-apiRoutes.get('/', function (req, res) {
-    res.json({ message:  '  欢迎使用API' });
-});
-//获取所有用户数据
-apiRoutes.get('/users', function (req, res) {
-    res.json({name:"admin",password:"123456"});
-});
-// 注册API路由
-app.use('/api', apiRoutes);
+const metaRouter = require('./routes/MetaRoute');
+app.use('/meta', metaRouter);
 
 //开启服务
 app.listen(config.network.port);
