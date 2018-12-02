@@ -6,5 +6,6 @@ module.exports = {
     'name':'admin',
     'password':'123456'
   },
-  'jwtsecret': 'myjwttest'
+  'jwtsecret': 'myjwttest',
+  'dbstore':'d:/dbstore'
 };
