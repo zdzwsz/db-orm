@@ -37,6 +37,10 @@ var MetaManager = {
 
     add: function (service, name, req) {
         var data = req.body;
+        if(data == null || typeof(data) !='object' || typeof(data.tableName) == 'undefined'){
+            return ResCode.error(ResCode.MetaAddNull);
+        }
+        console.log("data is :"+data)
         var file = this.getFileName(service, name);
         try {
             fs.writeFileSync(file, JSON.stringify(data))
