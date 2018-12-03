@@ -4,6 +4,10 @@ const router = express.Router();
 const filter = require('./JwtFilter');
 const metaManager = require('./../meta/MetaManager');
 metaManager.init();
+
+const serviceManager = require('./../meta/ServiceManager');
+serviceManager.init();
+
 router.use(function (req, res, next){
     filter(req, res, next);
 })
@@ -24,7 +28,13 @@ router.post('/get', function (req, res) {
 router.post('/:service/add', function (req, res) {
     console.log("create service");
     service = req.params.service;
-    res.json({name:service,message:"ok"});
+    res.json(serviceManager.service(service,'add'));
+})
+
+router.post('/:service/delete', function (req, res) {
+    console.log("delete service");
+    service = req.params.service;
+    res.json(serviceManager.service(service,'delete'));
 })
 
 router.post('/', function (req, res) {
