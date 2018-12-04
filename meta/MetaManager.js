@@ -19,6 +19,10 @@ var MetaManager = {
             return this.get(service, name)
         } else if (action == "add") {
             return this.add(service, name, req)
+        } else if(action =='delete'){
+            return this.delete(service, name)
+        } else if(action == 'update'){
+            return this.update(service, name, req)
         }
     },
 
@@ -58,7 +62,7 @@ var MetaManager = {
     delete: function (service, name) {
         var file = this.getFileName(service, name);
         try {
-            fs.rmdirSync(file);
+            fs.unlinkSync(file);
             return ResCode.OK
         } catch (e) {
             console.log(e);
