@@ -40,5 +40,7 @@ const metaRouter = require('./routes/MetaRoute');
 app.use('/meta', metaRouter);
 
 //开启服务
-app.listen(config.network.port);
+var server = app.listen(config.network.port);
 console.log('服务已经开启地址： http://localhost:' + config.network.port);
+
+module.exports = server;

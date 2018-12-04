@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "node ./test/start.js",
+    "test": "node ./node_modules/mocha/bin/mocha",
     "start": "node ./index.js"
   },
   "keywords": [],
@@ -19,5 +19,10 @@
     "mysql": "^2.16.0",
     "pg": "^7.5.0",
     "sqlite3": "^4.0.3"
+  },
+  "devDependencies": {
+    "mocha": "^5.2.0",
+    "should": "^13.2.3",
+    "supertest": "^3.3.0"
   }
 }
