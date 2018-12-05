@@ -18,7 +18,7 @@ var test_entry_data = {"tableName": "test_pet_table_","primary": "id",
     ]
   }
 
-describe.only('元数据服务 测试', function () {
+describe('元数据服务 测试', function () {
     var token = null;
 
     before(function () {
