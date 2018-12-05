@@ -2,7 +2,7 @@ var fs = require("fs")
 var path = require('path');
 var ResCode = require('./../ResCode')
 var config = require('./../config');
-
+var TableMeta = require("./../db/TableMeta")
 var MetaManager = {
     storePath: null,
     init: function () {
@@ -11,18 +11,18 @@ var MetaManager = {
             this.storePath = path.join(__dirname, this.storePath);
         }
         if (!fs.existsSync(this.storePath)) {
-            fs.mkdirSync(this.storePath)
+            fs.mkdirSync(this.storePath);
         }
     },
     service: function (service, name, action, req) {
         if (action == "get") {
-            return this.get(service, name)
+            return this.get(service, name);
         } else if (action == "add") {
-            return this.add(service, name, req)
+            return this.add(service, name, req);
         } else if(action =='delete'){
-            return this.delete(service, name)
+            return this.delete(service, name);
         } else if(action == 'update'){
-            return this.update(service, name, req)
+            return this.update(service, name, req);
         }
     },
 
@@ -30,9 +30,9 @@ var MetaManager = {
         var file = this.getFileName(service, name);
         try {
             var data = fs.readFileSync(file, 'utf-8');
-            console.log(data)
-            var json = ResCode.data(JSON.parse(data))
-            return json
+            console.log(data);
+            var json = ResCode.data(JSON.parse(data));
+            return json;
         } catch (e) {
             console.log(e);
             return ResCode.error(ResCode.MetaGet, e);
@@ -44,11 +44,13 @@ var MetaManager = {
         if(data == null || typeof(data) !='object' || typeof(data.tableName) == 'undefined'){
             return ResCode.error(ResCode.MetaAddNull);
         }
-        console.log("data is :"+data)
+        console.log("data is :"+data);
         var file = this.getFileName(service, name);
         try {
-            fs.writeFileSync(file, JSON.stringify(data))
-            return ResCode.OK
+            var table = TableMeta.load(data);
+            table.create();
+            fs.writeFileSync(file, JSON.stringify(data));
+            return ResCode.OK;
         } catch (e) {
             console.log(e);
             return ResCode.error(ResCode.MetaAdd, e);
@@ -56,14 +58,16 @@ var MetaManager = {
     },
 
     update: function (service, name, req) {
-        return this.add(service, name, req)
+        return this.add(service, name, req);
     },
 
     delete: function (service, name) {
         var file = this.getFileName(service, name);
         try {
+            var table = TableMeta.loadMeta(file);
+            table.delete();
             fs.unlinkSync(file);
-            return ResCode.OK
+            return ResCode.OK;
         } catch (e) {
             console.log(e);
             return ResCode.error(ResCode.MetaDelete, e);

@@ -1,4 +1,5 @@
 var TableMeta = require("./TableMeta")
+knex = require("./KnexManager").getKnex();
 function test() {
     var tableName = "test_users1";
     var fields = [{ name: "id", type: "int" }, 
@@ -14,10 +15,9 @@ function test() {
     table.addFields(fields);
     table.setPrimary("id")
     table.create()
-
-    var table2 = TableMeta.loadMeta("sys_users.json")
-    table2.create()
-
+    //var table2 = TableMeta.loadMeta("sys_users.json")
+    //table2.create()
+    //knex.destroy();
 }
 
 test()

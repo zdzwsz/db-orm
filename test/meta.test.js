@@ -3,10 +3,11 @@ var supertest = require('supertest');
 var should = require('should');
 var app = require('../index');
 var request = supertest(app);
+knex = require("./../db/KnexManager").getKnex();
 
 var test_data_type = '_test_servive__';
 var test_entry_name = '_test_entry__'
-var test_entry_data = {"tableName": "pet_table","primary": "id",
+var test_entry_data = {"tableName": "test_pet_table_","primary": "id",
     "fields": [
       {"name": "id","type": "int"},
       { "name": "name","type": "string","length": 12,"notNullable": true},
@@ -17,7 +18,7 @@ var test_entry_data = {"tableName": "pet_table","primary": "id",
     ]
   }
 
-describe('元数据服务 测试', function () {
+describe.only('元数据服务 测试', function () {
     var token = null;
 
     before(function () {
@@ -35,6 +36,7 @@ describe('元数据服务 测试', function () {
             .set('x-access-token', token)
             .then(function(){
                 console.log("测试完成,关闭API服务器");
+                knex.destroy();
                 app.close();
             })
     });
@@ -50,6 +52,18 @@ describe('元数据服务 测试', function () {
                 done(err);
             });
     });
+
+    it('查询元数据服务', function (done) {
+        request.post('/meta/' + test_data_type + '/'+test_entry_name+'/get')
+            .set('x-access-token', token)
+            .expect('Content-Type', /json/)
+            .end(function (err, res) {
+                should.not.exist(err);
+                res.body.should.have.property('code', '000');
+                done(err);
+            });
+    });
+
 
     it('删除元数据服务', function (done) {
         request.post('/meta/' + test_data_type + '/'+test_entry_name+'/delete')

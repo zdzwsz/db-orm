@@ -1,5 +1,5 @@
-knex = require("./knex_config")
-var fs = require('fs')
+knex = require("./KnexManager").getKnex();
+var fs = require('fs');
 
 class TableMeta {
 
@@ -12,9 +12,14 @@ class TableMeta {
         var meta=JSON.parse(fs.readFileSync(filename,'utf-8'));
         var tableMeta = new TableMeta(meta.tableName);
         tableMeta.addFields(meta.fields);
-        console.log("load tableMeta fields......"+meta.fields);
         tableMeta.setPrimary(meta.primary);
-        console.log("load tableMeta primary......"+meta.primary);
+        return tableMeta;
+    }
+
+    static load(JsonData){
+        var tableMeta = new TableMeta(JsonData.tableName);
+        tableMeta.addFields(JsonData.fields);
+        tableMeta.setPrimary(JsonData.primary);
         return tableMeta;
     }
 
@@ -86,7 +91,7 @@ class TableMeta {
         }
     }
 
-    create() {
+    create(callback) {
         var _this = this
         knex.schema.hasTable(_this.tableName).then(function (exists) {
             if (!exists) {
@@ -94,10 +99,14 @@ class TableMeta {
                 knex.schema.createTable(_this.tableName, function (table) {
                     for (var i = 0; i < _this.fields.length; i++) {
                         var field = _this.fields[i]
-                        console.log("field:" + field.name)
+                        //console.log("field:" + field.name)
                         _this._createColumn(table,field)
                     }
                     _this._createPrimary(table)
+                }).then(function(){
+                   if(callback){
+                      callback()
+                   }
                 }).catch(function (e) {
                     console.error('创建表：' + _this.tableName + ' error:' + e);
                 });
@@ -105,6 +114,24 @@ class TableMeta {
                 console.log("table:" + _this.tableName + " is Exists")
             }
         })
+    }
+
+    delete(callback){
+        var _this = this
+        knex.schema.dropTableIfExists (_this.tableName).then(function(){
+            if(callback){
+               callback()
+            }
+        })
+        // knex.schema.hasTable(_this.tableName).then(function (exists) {
+        //     if (exists) {
+        //         console.log(_this.tableName)
+        //         knex.schema.dropTable(_this.tableName).then()
+        //         //knex.schema.dropTableIfExists (_this.tableName).then()
+        //     }else{
+        //          console.log("table:" + _this.tableName + " is not Exists");
+        //     }
+        // })
     }
 
 }
