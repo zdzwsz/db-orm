@@ -108,10 +108,14 @@ class TableMeta {
                       callback()
                    }
                 }).catch(function (e) {
-                    console.error('创建表：' + _this.tableName + ' error:' + e);
+                    if(callback){
+                        callback(e)
+                    }
                 });
             } else {
-                console.log("table:" + _this.tableName + " is Exists")
+                if(callback){
+                    callback("table:" + _this.tableName + " is Exists")
+                }
             }
         })
     }
