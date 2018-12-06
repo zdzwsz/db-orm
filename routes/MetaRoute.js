@@ -1,40 +1,64 @@
-const express = require('express');
-const router = express.Router();
 const MetaManager = require('./../meta/MetaManager');
 const serviceManager = require('./../meta/ServiceManager');
-serviceManager.init();
 
-router.post('/:service/:entity/:action', function (req, res) {
-    service = req.params.service;
-    entity = req.params.entity;
-    action = req.params.action;
-    console.log("post: " + service + "," + entity + "," + action);
-    var metaManager = new MetaManager();
-    metaManager.end(function(message){
-        res.json(message)
-    })
-    metaManager.service(service, entity, action, req);
-})
+class MetaRoute{
 
-router.post('/get', function (req, res) {
-    console.log("get all service:");
-    res.json({ name: "admin", password: "123456" });
-})
+    constructor(router,intercept) {
+        this.router = router;
+        this.intercept = intercept;
+        serviceManager.init();
+        this.init();
+    }
 
-router.post('/:service/add', function (req, res) {
-    console.log("create service");
-    service = req.params.service;
-    res.json(serviceManager.service(service, 'add'));
-})
+    init(){
+       this.filter();
+       this.postEntity();
+       this.postService();
+       this.postGetAllService();
+    }
 
-router.post('/:service/delete', function (req, res) {
-    console.log("delete service");
-    service = req.params.service;
-    res.json(serviceManager.service(service, 'delete'));
-})
+    filter(){
+        this.router.use(this.intercept);
+    }
 
-router.post('/', function (req, res) {
-    res.json({ 'message': "welcome use db-orm" });
-})
+    postEntity(){
+        this.router.post('/:service/:entity/:action', function (req, res) {
+            let service = req.params.service;
+            let entity = req.params.entity;
+            let action = req.params.action;
+            console.log("post: " + service + "," + entity + "," + action);
+            var metaManager = new MetaManager();
+            metaManager.end(function(message){
+                res.json(message)
+            })
+            metaManager.service(service, entity, action, req);
+        })
+    }
 
-module.exports = router
+    postService(){
+        this.router.post('/:service/add', function (req, res) {
+            console.log("create service");
+            let service = req.params.service;
+            res.json(serviceManager.service(service, 'add'));
+        });
+        
+        this.router.post('/:service/delete', function (req, res) {
+            console.log("delete service");
+            let service = req.params.service;
+            res.json(serviceManager.service(service, 'delete'));
+        });
+    }
+    
+    postGetAllService(){
+        this.router.post('/get', function (req, res) {
+            console.log("get all service:");
+            res.json({ name: "", password: "" });
+        });
+        this.router.post('/', function (req, res) {
+            res.json({ 'message': "welcome use db-orm" });
+        });
+    }
+
+}
+
+module.exports = MetaRoute

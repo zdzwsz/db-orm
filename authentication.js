@@ -21,8 +21,7 @@ var authentication = {
             }
         }
     },
-    filter : function(req,res,next){
-        console.log("=============");
+    intercept : function(req,res,next){
         var token = req.body.token || req.query.token || req.headers['x-access-token'];
         if (token) {
             jwt.verify(token, config.jwtsecret, function (err, decoded) {

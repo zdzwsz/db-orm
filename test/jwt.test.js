@@ -4,7 +4,7 @@ var should = require('should');
 var app = require('../index');
 var request = supertest(app);
 
-describe.only('JWT 测试', function () {
+describe('JWT 测试', function () {
 
    after(function(){
       console.log("测试完成,关闭API服务器");  
