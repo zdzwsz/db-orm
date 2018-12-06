@@ -2,7 +2,7 @@ module.exports = {
   'network': {
     'port': 8080
   },
-  usses: {
+  users: {
     'name': 'admin',
     'password': '123456'
   },

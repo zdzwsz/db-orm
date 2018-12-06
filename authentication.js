@@ -4,10 +4,10 @@ var authentication = {
     getToken : function(req, res){
         let name = req.body.name;
         let password = req.body.password;
-        if (name != config.usses.name) {
+        if (name != config.users.name) {
             res.json({ success: false, message: '未找到授权用户' });
         } else {
-            if (config.usses.password != password) {
+            if (config.users.password != password) {
                 res.json({ success: false, message: '用户密码错误' });
             } else {
                 var token = jwt.sign({ "user": "admin" }, config.jwtsecret, {
@@ -22,6 +22,7 @@ var authentication = {
         }
     },
     filter : function(req,res,next){
+        console.log("=============");
         var token = req.body.token || req.query.token || req.headers['x-access-token'];
         if (token) {
             jwt.verify(token, config.jwtsecret, function (err, decoded) {
@@ -29,11 +30,11 @@ var authentication = {
                     return res.json({ success: false, message: '无效的token.' });
                 } else {
                     req.decoded = decoded;
-                    next(); //继续下一步路由
+                    console.log("user:"+decoded)
+                    next(); 
                 }
             });
         } else {
-            // 没有拿到token 返回错误 
             return res.status(403).send({
                 success: false,
                 message: '没有找到token.'

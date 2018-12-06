@@ -4,7 +4,7 @@ var should = require('should');
 var app = require('../index');
 var request = supertest(app);
 
-describe('JWT 测试', function () {
+describe.only('JWT 测试', function () {
 
    after(function(){
       console.log("测试完成,关闭API服务器");  
@@ -36,6 +36,16 @@ describe('JWT 测试', function () {
   it('登陆失败，用户不对', function (done) {
     request.post('/auth')
       .send({name: 'admin1',password:'123456'})
+      .expect('Content-Type', /json/)
+      .end(function (err, res) {
+        should.not.exist(err);
+        res.body.should.have.property('success', false);
+        done(err);
+      });
+  });
+
+  it('访问受保护资源，返回错误信息', function (done) {
+    request.post('/meta/get')
       .expect('Content-Type', /json/)
       .end(function (err, res) {
         should.not.exist(err);

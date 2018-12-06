@@ -11,8 +11,8 @@ app.use(morgan('dev'));
 const auth = require('./authentication');
 app.use('/auth', auth.getToken);
 
-const metaRouter = require('./routes/MetaRoute');
-metaRouter.use(auth.filter);
+var metaRouter = require('./routes/MetaRoute');
+metaRouter.use(function (req, res, next) {auth.filter(req, res, next)});
 app.use('/meta', metaRouter);
 
 var server = app.listen(config.network.port);
