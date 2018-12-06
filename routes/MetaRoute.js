@@ -1,15 +1,8 @@
 const express = require('express');
 const router = express.Router();
-
-const filter = require('./JwtFilter');
-var MetaManager = require('./../meta/MetaManager');
-
+const MetaManager = require('./../meta/MetaManager');
 const serviceManager = require('./../meta/ServiceManager');
 serviceManager.init();
-
-router.use(function (req, res, next) {
-    filter(req, res, next);
-})
 
 router.post('/:service/:entity/:action', function (req, res) {
     service = req.params.service;
@@ -17,7 +10,7 @@ router.post('/:service/:entity/:action', function (req, res) {
     action = req.params.action;
     console.log("post: " + service + "," + entity + "," + action);
     var metaManager = new MetaManager();
-    metaManager.on("meta_over",function(message){
+    metaManager.end(function(message){
         res.json(message)
     })
     metaManager.service(service, entity, action, req);

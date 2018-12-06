@@ -9,6 +9,11 @@ class MetaManager extends EventEmitter {
     constructor() {
         super();
         this.init();
+        this.eventName = "MetaManager_end_event"
+    }
+
+    end(callback){
+        this.once(this.eventName,callback);
     }
 
     init() {
@@ -25,11 +30,12 @@ class MetaManager extends EventEmitter {
         if (action == "get") {
             this.get(service, name);
         } else if (action == "add") {
+            console.log("1================:"+new Date().getTime())
             this.add(service, name, req);
         } else if (action == 'delete') {
-            return this.delete(service, name);
+            this.delete(service, name);
         } else if (action == 'update') {
-            return this.update(service, name, req);
+            this.update(service, name, req);
         }
     }
 
@@ -37,37 +43,39 @@ class MetaManager extends EventEmitter {
         var file = this.getFileName(service, name);
         try {
             var data = fs.readFileSync(file, 'utf-8');
-            console.log(data);
+            //console.log(data);
             var json = ResCode.data(JSON.parse(data));
-            this.emit("meta_over", json)
+            this.emit(this.eventName, json)
         } catch (e) {
             console.log(e);
-            this.emit("meta_over", ResCode.error(ResCode.MetaGet, e));
+            this.emit(this.eventName, ResCode.error(ResCode.MetaGet, e));
         }
     }
 
     add(service, name, req) {
         var data = req.body;
         if (data == null || typeof (data) != 'object' || typeof (data.tableName) == 'undefined') {
-            this.emit("meta_over", ResCode.error(ResCode.MetaAddNull));
+            this.emit(this.eventName, ResCode.error(ResCode.MetaAddNull));
         }
-        console.log("data is :" + data);
+        //console.log("data is :" + data);
         var file = this.getFileName(service, name);
         var table = TableMeta.load(data);
         var _this = this;
         table.create(function (e) {
             if (e) {
                 console.log(e);
-                this.emit("meta_over", ResCode.error(ResCode.MetaAdd, e))
+                _this.emit(_this.eventName, ResCode.error(ResCode.MetaAdd, e))
+               
             } else {
                 fs.writeFileSync(file, JSON.stringify(data));
-                _this.emit("meta_over", ResCode.OK)
+                _this.emit(_this.eventName, ResCode.OK)
+                console.log("3================:"+new Date().getTime())
             }
         });
     }
 
     update(service, name, req) {
-        return this.add(service, name, req);
+        this.add(service, name, req);
     }
 
     delete(service, name) {
@@ -77,11 +85,11 @@ class MetaManager extends EventEmitter {
             var table = TableMeta.loadMeta(file);
             table.delete(function () {
                 fs.unlinkSync(file);
-                _this.emit("meta_over", ResCode.OK)
+                _this.emit(_this.eventName, ResCode.OK)
             });
         } catch (e) {
             console.log(e)
-            this.emit("meta_over", ResCode.error(ResCode.MetaDelete, e))
+            this.emit(_this.eventName, ResCode.error(ResCode.MetaDelete, e))
         }
     }
 

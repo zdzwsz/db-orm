@@ -11,6 +11,8 @@ function test() {
                   { name:"assets",type:"decimal",length:[8],"notNullable":true},
                   { name:"type",type:"string",length:2,default: "0","notNullable":false}
                 ];
+    
+    
     var table = new TableMeta(tableName);
     table.addFields(fields);
     table.setPrimary("id")
@@ -19,5 +21,6 @@ function test() {
     //table2.create()
     //knex.destroy();
 }
-
+console.time("sort");
 test()
+console.timeEnd("sort");

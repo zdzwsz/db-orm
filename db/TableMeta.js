@@ -93,6 +93,7 @@ class TableMeta {
 
     create(callback) {
         var _this = this
+        console.log("2.1==============:"+new Date().getTime());
         knex.schema.hasTable(_this.tableName).then(function (exists) {
             if (!exists) {
                 console.log("create table:" + _this.tableName)
@@ -104,6 +105,7 @@ class TableMeta {
                     }
                     _this._createPrimary(table)
                 }).then(function(){
+                   console.log("2.2==============:"+new Date().getTime());
                    if(callback){
                       callback()
                    }
