@@ -2,6 +2,7 @@ var fs = require("fs")
 var path = require('path');
 var ResCode = require('./../ResCode')
 var config = require('./../config');
+const logger = require("./../log")
 
 var ServiceManager = {
     storePath: null,
@@ -29,7 +30,7 @@ var ServiceManager = {
             fs.mkdirSync(file);
             return ResCode.OK;
         } catch (e) {
-            console.log(e);
+            logger.error(e);
             return ResCode.error(ResCode.MetaAdd, e);
         }
     },
@@ -40,7 +41,7 @@ var ServiceManager = {
             fs.rmdirSync(file);
             return ResCode.OK
         } catch (e) {
-            console.log(e);
+            logger.error(e);
             return ResCode.error(ResCode.MetaDelete, e);
         }
     },

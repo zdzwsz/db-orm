@@ -1,5 +1,6 @@
 const MetaManager = require('./../meta/MetaManager');
 const serviceManager = require('./../meta/ServiceManager');
+const logger = require("./../log")
 
 class MetaRoute{
 
@@ -26,7 +27,7 @@ class MetaRoute{
             let service = req.params.service;
             let entity = req.params.entity;
             let action = req.params.action;
-            console.log("post: " + service + "," + entity + "," + action);
+            logger.info("post: " + service + "," + entity + "," + action);
             var metaManager = new MetaManager();
             metaManager.end(function(message){
                 res.json(message)
@@ -37,13 +38,13 @@ class MetaRoute{
 
     postService(){
         this.router.post('/:service/add', function (req, res) {
-            console.log("create service");
+            logger.info("create service");
             let service = req.params.service;
             res.json(serviceManager.service(service, 'add'));
         });
         
         this.router.post('/:service/delete', function (req, res) {
-            console.log("delete service");
+            logger.info("delete service");
             let service = req.params.service;
             res.json(serviceManager.service(service, 'delete'));
         });
@@ -51,7 +52,7 @@ class MetaRoute{
     
     postGetAllService(){
         this.router.post('/get', function (req, res) {
-            console.log("get all service:");
+            logger.info("get all service:");
             res.json({ name: "", password: "" });
         });
         this.router.post('/', function (req, res) {

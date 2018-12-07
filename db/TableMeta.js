@@ -1,6 +1,6 @@
 knex = require("./KnexManager").getKnex();
 var fs = require('fs');
-
+const logger = require("./../log")
 class TableMeta {
 
     constructor(tableName) {
@@ -93,10 +93,10 @@ class TableMeta {
 
     create(callback) {
         var _this = this
-        console.log("2.1==============:"+new Date().getTime());
+        logger.debug("2.1==============:"+new Date().getTime());
         knex.schema.hasTable(_this.tableName).then(function (exists) {
             if (!exists) {
-                console.log("create table:" + _this.tableName)
+                logger.debug("create table:" + _this.tableName)
                 knex.schema.createTable(_this.tableName, function (table) {
                     for (var i = 0; i < _this.fields.length; i++) {
                         var field = _this.fields[i]
@@ -105,7 +105,7 @@ class TableMeta {
                     }
                     _this._createPrimary(table)
                 }).then(function(){
-                   console.log("2.2==============:"+new Date().getTime());
+                    logger.debug("2.2==============:"+new Date().getTime());
                    if(callback){
                       callback()
                    }
@@ -129,15 +129,6 @@ class TableMeta {
                callback()
             }
         })
-        // knex.schema.hasTable(_this.tableName).then(function (exists) {
-        //     if (exists) {
-        //         console.log(_this.tableName)
-        //         knex.schema.dropTable(_this.tableName).then()
-        //         //knex.schema.dropTableIfExists (_this.tableName).then()
-        //     }else{
-        //          console.log("table:" + _this.tableName + " is not Exists");
-        //     }
-        // })
     }
 
 }

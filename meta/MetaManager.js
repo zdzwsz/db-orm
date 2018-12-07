@@ -4,6 +4,7 @@ var ResCode = require('./../ResCode')
 var config = require('./../config');
 var TableMeta = require("./../db/TableMeta")
 var EventEmitter = require('events').EventEmitter;
+const logger = require("./../log")
 class MetaManager extends EventEmitter {
 
     constructor() {
@@ -30,7 +31,7 @@ class MetaManager extends EventEmitter {
         if (action == "get") {
             this.get(service, name);
         } else if (action == "add") {
-            console.log("1================:"+new Date().getTime())
+            logger.debug("1================:"+new Date().getTime())
             this.add(service, name, req);
         } else if (action == 'delete') {
             this.delete(service, name);
@@ -47,7 +48,7 @@ class MetaManager extends EventEmitter {
             var json = ResCode.data(JSON.parse(data));
             this.emit(this.eventName, json)
         } catch (e) {
-            console.log(e);
+            logger.error(e);
             this.emit(this.eventName, ResCode.error(ResCode.MetaGet, e));
         }
     }
@@ -63,13 +64,13 @@ class MetaManager extends EventEmitter {
         var _this = this;
         table.create(function (e) {
             if (e) {
-                console.log(e);
+                logger.error(e);
                 _this.emit(_this.eventName, ResCode.error(ResCode.MetaAdd, e))
                
             } else {
                 fs.writeFileSync(file, JSON.stringify(data));
                 _this.emit(_this.eventName, ResCode.OK)
-                console.log("3================:"+new Date().getTime())
+                logger.debug("3================:"+new Date().getTime())
             }
         });
     }
@@ -88,7 +89,7 @@ class MetaManager extends EventEmitter {
                 _this.emit(_this.eventName, ResCode.OK)
             });
         } catch (e) {
-            console.log(e)
+            logger.error(e)
             this.emit(_this.eventName, ResCode.error(ResCode.MetaDelete, e))
         }
     }
