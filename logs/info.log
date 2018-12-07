@@ -1,0 +1,51 @@
+[2018-12-07T19:45:26.432] [INFO] default - ::1 - - "POST /auth HTTP/1.1" 200 212 "" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.94 Safari/537.36"
+[2018-12-07T19:47:39.067] [INFO] default - server start at:8080
+[2018-12-07T19:48:02.057] [INFO] default - server start at:8080
+[2018-12-07T19:48:02.140] [INFO] default - ::ffff:127.0.0.1 - - "POST /auth HTTP/1.1" 200 212 "" "node-superagent/3.8.3"
+[2018-12-07T19:48:02.155] [INFO] default - ::ffff:127.0.0.1 - - "POST /auth HTTP/1.1" 200 48 "" "node-superagent/3.8.3"
+[2018-12-07T19:48:02.160] [INFO] default - ::ffff:127.0.0.1 - - "POST /auth HTTP/1.1" 200 51 "" "node-superagent/3.8.3"
+[2018-12-07T19:48:02.165] [ERROR] default - ::ffff:127.0.0.1 - - "POST /meta/get HTTP/1.1" 403 48 "" "node-superagent/3.8.3"
+[2018-12-07T19:48:02.174] [INFO] default - ::ffff:127.0.0.1 - - "POST /auth HTTP/1.1" 200 212 "" "node-superagent/3.8.3"
+[2018-12-07T19:48:02.187] [INFO] default - ::ffff:127.0.0.1 - - "POST /meta/_test_servive__/add HTTP/1.1" 200 29 "" "node-superagent/3.8.3"
+[2018-12-07T19:48:02.508] [INFO] default - ::ffff:127.0.0.1 - - "POST /meta/_test_servive__/_test_entry__/add HTTP/1.1" 200 29 "" "node-superagent/3.8.3"
+[2018-12-07T19:48:02.518] [INFO] default - ::ffff:127.0.0.1 - - "POST /meta/_test_servive__/_test_entry__/get HTTP/1.1" 200 345 "" "node-superagent/3.8.3"
+[2018-12-07T19:48:02.586] [INFO] default - ::ffff:127.0.0.1 - - "POST /meta/_test_servive__/_test_entry__/delete HTTP/1.1" 200 29 "" "node-superagent/3.8.3"
+[2018-12-07T19:48:02.626] [INFO] default - ::ffff:127.0.0.1 - - "POST /meta/_test_servive__/delete HTTP/1.1" 200 29 "" "node-superagent/3.8.3"
+[2018-12-07T19:48:02.628] [INFO] default - ::ffff:127.0.0.1 - - "POST /auth HTTP/1.1" 200 212 "" "node-superagent/3.8.3"
+[2018-12-07T19:48:02.650] [INFO] default - ::ffff:127.0.0.1 - - "POST /meta/_test_servive__/add HTTP/1.1" 200 29 "" "node-superagent/3.8.3"
+[2018-12-07T19:48:02.661] [INFO] default - ::ffff:127.0.0.1 - - "POST /meta/_test_servive__/delete HTTP/1.1" 200 29 "" "node-superagent/3.8.3"
+[2018-12-07T19:52:08.153] [INFO] default - server start at:8080
+[2018-12-07T19:52:08.250] [INFO] default - ::ffff:127.0.0.1 - - "POST /auth HTTP/1.1" 200 212 "" "node-superagent/3.8.3"
+[2018-12-07T19:52:08.262] [INFO] default - ::ffff:127.0.0.1 - - "POST /auth HTTP/1.1" 200 48 "" "node-superagent/3.8.3"
+[2018-12-07T19:52:08.267] [INFO] default - ::ffff:127.0.0.1 - - "POST /auth HTTP/1.1" 200 51 "" "node-superagent/3.8.3"
+[2018-12-07T19:52:08.273] [ERROR] default - ::ffff:127.0.0.1 - - "POST /meta/get HTTP/1.1" 403 48 "" "node-superagent/3.8.3"
+[2018-12-07T19:52:08.286] [INFO] default - ::ffff:127.0.0.1 - - "POST /auth HTTP/1.1" 200 212 "" "node-superagent/3.8.3"
+[2018-12-07T19:52:08.299] [INFO] default - ::ffff:127.0.0.1 - - "POST /meta/_test_servive__/add HTTP/1.1" 200 29 "" "node-superagent/3.8.3"
+[2018-12-07T19:52:08.558] [INFO] default - ::ffff:127.0.0.1 - - "POST /meta/_test_servive__/_test_entry__/add HTTP/1.1" 200 29 "" "node-superagent/3.8.3"
+[2018-12-07T19:52:08.566] [INFO] default - ::ffff:127.0.0.1 - - "POST /meta/_test_servive__/_test_entry__/get HTTP/1.1" 200 345 "" "node-superagent/3.8.3"
+[2018-12-07T19:52:08.616] [INFO] default - ::ffff:127.0.0.1 - - "POST /meta/_test_servive__/_test_entry__/delete HTTP/1.1" 200 29 "" "node-superagent/3.8.3"
+[2018-12-07T19:52:08.630] [INFO] default - ::ffff:127.0.0.1 - - "POST /meta/_test_servive__/delete HTTP/1.1" 200 29 "" "node-superagent/3.8.3"
+[2018-12-07T19:52:08.633] [INFO] default - ::ffff:127.0.0.1 - - "POST /auth HTTP/1.1" 200 212 "" "node-superagent/3.8.3"
+[2018-12-07T19:52:08.646] [INFO] default - ::ffff:127.0.0.1 - - "POST /meta/_test_servive__/add HTTP/1.1" 200 29 "" "node-superagent/3.8.3"
+[2018-12-07T19:52:08.654] [INFO] default - ::ffff:127.0.0.1 - - "POST /meta/_test_servive__/delete HTTP/1.1" 200 29 "" "node-superagent/3.8.3"
+[2018-12-07T20:39:54.176] [INFO] default - server start at:8080
+[2018-12-07T20:39:54.254] [INFO] default - ::ffff:127.0.0.1 - - "POST /auth HTTP/1.1" 200 212 "" "node-superagent/3.8.3"
+[2018-12-07T20:39:54.269] [INFO] default - ::ffff:127.0.0.1 - - "POST /auth HTTP/1.1" 200 48 "" "node-superagent/3.8.3"
+[2018-12-07T20:39:54.274] [INFO] default - ::ffff:127.0.0.1 - - "POST /auth HTTP/1.1" 200 51 "" "node-superagent/3.8.3"
+[2018-12-07T20:39:54.281] [ERROR] default - ::ffff:127.0.0.1 - - "POST /meta/get HTTP/1.1" 403 48 "" "node-superagent/3.8.3"
+[2018-12-07T20:39:54.290] [INFO] default - ::ffff:127.0.0.1 - - "POST /auth HTTP/1.1" 200 212 "" "node-superagent/3.8.3"
+[2018-12-07T20:39:54.306] [INFO] default - create service
+[2018-12-07T20:39:54.310] [INFO] default - ::ffff:127.0.0.1 - - "POST /meta/_test_servive__/add HTTP/1.1" 200 29 "" "node-superagent/3.8.3"
+[2018-12-07T20:39:54.319] [INFO] default - post: _test_servive__,_test_entry__,add
+[2018-12-07T20:39:54.603] [INFO] default - ::ffff:127.0.0.1 - - "POST /meta/_test_servive__/_test_entry__/add HTTP/1.1" 200 29 "" "node-superagent/3.8.3"
+[2018-12-07T20:39:54.659] [INFO] default - post: _test_servive__,_test_entry__,get
+[2018-12-07T20:39:54.664] [INFO] default - ::ffff:127.0.0.1 - - "POST /meta/_test_servive__/_test_entry__/get HTTP/1.1" 200 345 "" "node-superagent/3.8.3"
+[2018-12-07T20:39:54.677] [INFO] default - post: _test_servive__,_test_entry__,delete
+[2018-12-07T20:39:54.741] [INFO] default - ::ffff:127.0.0.1 - - "POST /meta/_test_servive__/_test_entry__/delete HTTP/1.1" 200 29 "" "node-superagent/3.8.3"
+[2018-12-07T20:39:54.757] [INFO] default - delete service
+[2018-12-07T20:39:54.759] [INFO] default - ::ffff:127.0.0.1 - - "POST /meta/_test_servive__/delete HTTP/1.1" 200 29 "" "node-superagent/3.8.3"
+[2018-12-07T20:39:54.761] [INFO] default - ::ffff:127.0.0.1 - - "POST /auth HTTP/1.1" 200 212 "" "node-superagent/3.8.3"
+[2018-12-07T20:39:54.807] [INFO] default - create service
+[2018-12-07T20:39:54.808] [INFO] default - ::ffff:127.0.0.1 - - "POST /meta/_test_servive__/add HTTP/1.1" 200 29 "" "node-superagent/3.8.3"
+[2018-12-07T20:39:54.815] [INFO] default - delete service
+[2018-12-07T20:39:54.817] [INFO] default - ::ffff:127.0.0.1 - - "POST /meta/_test_servive__/delete HTTP/1.1" 200 29 "" "node-superagent/3.8.3"
