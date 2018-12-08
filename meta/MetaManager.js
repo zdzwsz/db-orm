@@ -31,7 +31,6 @@ class MetaManager extends EventEmitter {
         if (action == "get") {
             this.get(service, name);
         } else if (action == "add") {
-            logger.debug("1================:"+new Date().getTime())
             this.add(service, name, req);
         } else if (action == 'delete') {
             this.delete(service, name);
@@ -44,7 +43,6 @@ class MetaManager extends EventEmitter {
         var file = this.getFileName(service, name);
         try {
             var data = fs.readFileSync(file, 'utf-8');
-            //console.log(data);
             var json = ResCode.data(JSON.parse(data));
             this.emit(this.eventName, json)
         } catch (e) {
@@ -58,7 +56,6 @@ class MetaManager extends EventEmitter {
         if (data == null || typeof (data) != 'object' || typeof (data.tableName) == 'undefined') {
             this.emit(this.eventName, ResCode.error(ResCode.MetaAddNull));
         }
-        //console.log("data is :" + data);
         var file = this.getFileName(service, name);
         var table = TableMeta.load(data);
         var _this = this;
@@ -70,13 +67,28 @@ class MetaManager extends EventEmitter {
             } else {
                 fs.writeFileSync(file, JSON.stringify(data));
                 _this.emit(_this.eventName, ResCode.OK)
-                logger.debug("3================:"+new Date().getTime())
             }
         });
     }
 
     update(service, name, req) {
-        this.add(service, name, req);
+        var data = req.body;
+        if (data == null || typeof (data) != 'object') {
+            this.emit(this.eventName, ResCode.error(ResCode.MetaUpdateNull));
+        }
+        var file = this.getFileName(service, name);
+        var table = TableMeta.loadMeta(file);
+        var _this = this;
+        table.update(data,function(e){
+            if (e) {
+                logger.error(e);
+                _this.emit(_this.eventName, ResCode.error(ResCode.MetaUpdate, e))
+               
+            } else {
+                fs.writeFileSync(file, JSON.stringify(table.getJsonData()));
+                _this.emit(_this.eventName, ResCode.OK)
+            }
+        })
     }
 
     delete(service, name) {

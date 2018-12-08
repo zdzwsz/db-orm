@@ -1,0 +1,12 @@
+{
+    "r_primary":"name",
+    "add":[
+        { "name":"pic", "type":"string","length":255}
+    ],
+    "update":{
+       "age":{"name": "ages", "type": "string"}
+    },
+    "delete":[
+        "crete_data"
+    ]
+}

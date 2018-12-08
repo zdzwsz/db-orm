@@ -23,7 +23,7 @@ module.exports = {
       'error': { type: 'logLevelFilter', appender: 'just-errors', level: 'error' }
     },
     categories: {
-      default: { appenders: [ 'out', 'info','error' ], level: 'info' }
+      default: { appenders: [ 'out', 'info','error' ], level: 'debug' }
     }
   }
 };

@@ -1,4 +1,5 @@
 var config = require('./config');
+const logger = require("./log");
 var jwt = require('jsonwebtoken');
 var authentication = {
     getToken : function(req, res){
@@ -24,12 +25,12 @@ var authentication = {
     intercept : function(req,res,next){
         var token = req.body.token || req.query.token || req.headers['x-access-token'];
         if (token) {
-            jwt.verify(token, config.jwtsecret, function (err, decoded) {
+            jwt.verify(token, config.jwtsecret, function (err, user) {
                 if (err) {
                     return res.json({ success: false, message: '无效的token.' });
                 } else {
-                    req.decoded = decoded;
-                    console.log("user:"+decoded)
+                    req.user = user;
+                    logger.info(user.user + " access api web");
                     next(); 
                 }
             });

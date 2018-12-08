@@ -1,7 +1,7 @@
 var TableMeta = require("./TableMeta")
 knex = require("./KnexManager").getKnex();
-function test() {
-    var tableName = "test_users1";
+function main() {
+    var tableName = "__test__users__create_";
     var fields = [{ name: "id", type: "int" }, 
                   { name: "name", type: "string" ,length : 12}, 
                   { name: "age", type: "int" ,default: 1},
@@ -11,16 +11,19 @@ function test() {
                   { name:"assets",type:"decimal",length:[8],"notNullable":true},
                   { name:"type",type:"string",length:2,default: "0","notNullable":false}
                 ];
+    var json ={
+        "tableName": tableName,
+        "primary": "id",
+        "fields": fields
+    }
     
+    var table = new TableMeta(json);
+    table.create(function(){
+        knex.destroy()
+    })
     
-    var table = new TableMeta(tableName);
-    table.addFields(fields);
-    table.setPrimary("id")
-    table.create()
-    //var table2 = TableMeta.loadMeta("sys_users.json")
-    //table2.create()
-    //knex.destroy();
 }
+
 console.time("sort");
-test()
+main()
 console.timeEnd("sort");

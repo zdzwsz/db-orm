@@ -4,6 +4,7 @@ var ResCode = {
     MetaAddNull:['005','提交的数据格式不正确'],
     MetaGet:'006',
     MetaUpdate:'007',
+    MetaUpdateNull:['007','提交的数据格式不正确'],
     MetaDelete:'008',
     MetaServiceAdd:"001",
     MetaServiceDelete:"002",

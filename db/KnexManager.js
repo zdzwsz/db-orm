@@ -12,11 +12,11 @@ class KnexManager {
                     database: config.database.dbname
                 }
             });
-        console.log("create database pool!")
     }
     static getKnex() {
         if (!KnexManager.instance) {
-            KnexManager.instance = new KnexManager()
+            KnexManager.instance = new KnexManager();
+            console.log("create database pool");
         }
         return KnexManager.instance.knex
     }
