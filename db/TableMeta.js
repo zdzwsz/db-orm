@@ -7,7 +7,7 @@ class TableMeta {
         this.tableName = json.tableName;
         this.fields = json.fields;
         this.primary = json.primary;
-        this.json=json;
+        this.json = json;
     }
 
     static loadMeta(filename) {
@@ -21,7 +21,7 @@ class TableMeta {
         return tableMeta;
     }
 
-    getJsonData(){
+    getJsonData() {
         return this.json;
     }
 
@@ -96,7 +96,6 @@ class TableMeta {
 
     create(callback) {
         var _this = this
-        logger.debug("2.1==============:" + new Date().getTime());
         knex.schema.hasTable(_this.tableName).then(function (exists) {
             if (!exists) {
                 logger.debug("create table:" + _this.tableName)
@@ -107,7 +106,6 @@ class TableMeta {
                     }
                     _this._createPrimary(table)
                 }).then(function () {
-                    logger.debug("2.2==============:" + new Date().getTime());
                     if (callback) {
                         callback()
                     }
@@ -136,54 +134,88 @@ class TableMeta {
     update(json, callback) {
         //先增加字段，再删除字段，然后修改字段，然后改主键。无法保证事务完整。
         if (typeof (json) == "object") {
+            //克隆 json
+            let cloneJson = JSON.parse(JSON.stringify(this.json));
             var _this = this
             //可能什么都没有干
             knex.schema.table(_this.tableName, function (table) {
                 if (json.add) {
-                    for (var i = 0; i < json.add.length; i++) {
+                    for (let i = 0; i < json.add.length; i++) {
                         var field = json.add[i]
                         _this._createColumn(table, field)
+                        cloneJson.fields.push(field);
                     }
                 }
                 if (json.delete) {
                     table.dropColumns(json.delete);
+                    for (let i = 0; i < json.delete.length; i++) {
+                        for (let j = 0; j < cloneJson.fields.length; j++) {
+                            if (cloneJson.fields[j].name = json.delete[i]) {
+                                cloneJson.fields.splice(j, 1);
+                                break;
+                            }
+                        }
+                    }
                 }
                 if (json.update) {
                     //rename 
                     for (var key in json.update) {
                         if (key != json.update[key].name) {
-                            logger.debug("rename field type!"+"key is:"+key + " to:"+json.update[key].name );
-                            table.renameColumn(key, json.update[key].name)
+                            //如果提交的字段，不在数据中，日志发出警告。
+                            let field_exist = false;
+                            for (let i = 0; i < cloneJson.fields.length; i++) {
+                                if (cloneJson.fields[i].name == key) {
+                                    table.renameColumn(key, json.update[key].name)
+                                    cloneJson.fields[i].name = json.update[key].name;
+                                    logger.debug("rename field: " + key + " to: " + json.update[key].name);
+                                    field_exist = true;
+                                    break;
+                                }
+                            }
+                            if(!field_exist){
+                                logger.warn("modify field error:" + key +" not exist ,please check update json!");
+                            }
                         }
                     }
                 }
                 if (json.r_primary) {
                     table.dropPrimary();
                     table.primary(json.r_primary);
+                    cloneJson.primary = json.r_primary;
                 }
             }).then(function () {
+                _this.json = cloneJson;
+                cloneJson = JSON.parse(JSON.stringify(_this.json));
                 if (json.update) {
-                    //update type 
+                    //update type , 难以保证事务一致性
                     knex.schema.alterTable(_this.tableName, function (table) {
-                        for (var key in json.update) {
-                            var field = json.update[key];
-                            logger.debug("alert field type:"+ field );
-                            var column = _this._createColumn(table, field);
-                            column.alter();
+                        for (let key in json.update) {
+                            let field = json.update[key];
+                            for (let i = 0; i < cloneJson.fields.length; i++) {
+                                if (cloneJson.fields[i].name == field.name) {
+                                    cloneJson.fields[i] = json.update[key];
+                                    logger.debug("alert field type:" + field.name);
+                                    let column = _this._createColumn(table, field);
+                                    column.alter();
+                                    break;
+                                }
+                            }
                         }
-                        
                     })
-                    .then(function(){
-                        callback()
-                    })
-                    .catch(function(e){
-                        logger.error("alter column type error:"+e);
-                        callback(e)
-                    })
-                }else{
+                        .then(function () {
+                            _this.json = cloneJson;
+                            callback()
+                        })
+                        .catch(function (e) {
+                            e.code = "02"
+                            logger.error("alter column type error:" + e);
+                            callback(e)
+                        })
+                } else {
                     callback()
                 }
             }).catch(function (e) {
+                e.code = "01"
                 logger.error(e);
                 callback(e)
             });

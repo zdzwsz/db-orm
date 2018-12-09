@@ -12,3 +12,34 @@
 
 3、配置文件：server/config.js<br>
    数据 json 配置设置为自己文件夹的目录。<br>
+
+4、元数据json 格式：
+{
+    "tableName":"test_sys_users",
+    "primary":"id",
+    "fields":[
+        { "name": "id", "type": "int" }, 
+        { "name": "name", "type": "string" ,"length" : 12,"notNullable":true}, 
+        { "name": "age", "type": "int" ,"default": 10},
+        { "name": "birthday","type":"dateTime"},
+        { "name": "salary","type":"float","length":[10,2]},
+        { "name": "crete_data","type":"timestamp"},
+        { "name": "assets","type":"decimal","length":[8]},
+        { "name": "type","type":"string","length":2,"default": "0"}
+    ]
+}
+
+5、元数据修改 格式：
+{
+    "r_primary":"name",
+    "add":[
+        { "name":"pic", "type":"string","length":255}
+    ],
+    "update":{
+       "age":{"name": "ages", "type": "string"}
+    },
+    "delete":[
+        "crete_data"
+    ]
+}
+目前不支持修改表的名称
