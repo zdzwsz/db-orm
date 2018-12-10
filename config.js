@@ -17,7 +17,7 @@ module.exports = {
   },
   'log':{
     appenders: {
-      "out": { type: 'stdout' },//设置是否在控制台打印日志
+      "out": { type: 'stdout' },
       "info": { type: 'file', filename: './logs/info.log' },
       "just-errors": { type: 'file', filename: './logs/error.log' },
       'error': { type: 'logLevelFilter', appender: 'just-errors', level: 'error' }

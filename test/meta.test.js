@@ -54,6 +54,7 @@ describe('元数据服务 测试', function () {
     });
 
     it('增加元数据服务', function (done) {
+        this.timeout(4000);
         request.post('/meta/' + test_data_type + '/' + test_entry_name + '/add')
             .set('x-access-token', token)
             .send(test_entry_data)
@@ -66,6 +67,7 @@ describe('元数据服务 测试', function () {
     });
 
     it('查询元数据服务', function (done) {
+        this.timeout(1000);
         request.post('/meta/' + test_data_type + '/' + test_entry_name + '/get')
             .set('x-access-token', token)
             .expect('Content-Type', /json/)
@@ -77,6 +79,7 @@ describe('元数据服务 测试', function () {
     });
 
     it('更新元数据服务', function (done) {
+        this.timeout(4000);
         request.post('/meta/' + test_data_type + '/' + test_entry_name + '/update')
             .set('x-access-token', token)
             .send(test_entry_update_data)
@@ -90,6 +93,7 @@ describe('元数据服务 测试', function () {
 
 
     it('删除元数据服务', function (done) {
+
         request.post('/meta/' + test_data_type + '/' + test_entry_name + '/delete')
             .set('x-access-token', token)
             .expect('Content-Type', /json/)

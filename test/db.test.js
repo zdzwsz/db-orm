@@ -1,6 +1,7 @@
 var knex = require("./../db/KnexManager").getKnex();
 var TableMeta = require("./../db/TableMeta")
 var app = require('../index');
+var should = require('should');
 
 var table_new = {
     "tableName":"test_sys_users",
@@ -62,6 +63,7 @@ describe.skip('元数据数据库操作 测试', function () {
     })
 
     it('增加数据表', function (done) {
+        this.timeout(3000);
         var table = TableMeta.load(table_new);
         table.create(function (e) {
             should.not.exist(e);
@@ -70,6 +72,7 @@ describe.skip('元数据数据库操作 测试', function () {
     })
 
     it('修改数据表(all)', function (done) {
+        this.timeout(4000);
         var table = TableMeta.load(table_new);
         table.update(table_update, function (e) {
             should.not.exist(e);
@@ -90,6 +93,7 @@ describe.skip('元数据数据库操作 测试', function () {
     })
 
     it('再次增加数据表', function (done) {
+        this.timeout(3000);
         var table = TableMeta.load(table_new);
         table.create(function (e) {
             should.not.exist(e);
@@ -98,6 +102,7 @@ describe.skip('元数据数据库操作 测试', function () {
     })
 
     it('只是增加数据字段', function (done) {
+        this.timeout(4000);
         var table = TableMeta.load(table_new);
         table.update(add_field, function (e) {
             should.not.exist(e);
@@ -109,6 +114,7 @@ describe.skip('元数据数据库操作 测试', function () {
     })
 
     it('只是删除数据字段', function (done) {
+        this.timeout(4000);
         var table = TableMeta.load(table_new);
         table.update(delete_field, function (e) {
             should.not.exist(e);
@@ -120,6 +126,7 @@ describe.skip('元数据数据库操作 测试', function () {
     })
 
     it('只是更改主键字段', function (done) {
+        this.timeout(4000);
         var table = TableMeta.load(table_new);
         table.update(r_primary, function (e) {
             should.not.exist(e);
@@ -132,6 +139,7 @@ describe.skip('元数据数据库操作 测试', function () {
 
 
    it('只是修改原字段名称和类型', function (done) {
+        this.timeout(4000);
         var table = TableMeta.load(table_new);
         table.update(update_field, function (e) {
             should.not.exist(e);
@@ -140,6 +148,7 @@ describe.skip('元数据数据库操作 测试', function () {
     })
 
     it('最后删除数据表', function (done) {
+        this.timeout(4000);
         var table = TableMeta.load(table_new);
         table.delete(function (e) {
             should.not.exist(e);
