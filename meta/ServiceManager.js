@@ -1,19 +1,12 @@
 var fs = require("fs")
 var path = require('path');
 var ResCode = require('./../ResCode')
-var config = require('./../config');
 const logger = require("./../log")
 
 var ServiceManager = {
     storePath: null,
     init: function () {
-        this.storePath = config.dbstore;
-        if (this.storePath.indexOf(".")==0) {
-            this.storePath = path.join(__dirname, this.storePath);
-        }
-        if (!fs.existsSync(this.storePath)) {
-            fs.mkdirSync(this.storePath)
-        }
+        this.storePath = path.join(__dirname,"../modules");
     },
 
     service: function (service,action) {

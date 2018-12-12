@@ -1,12 +1,13 @@
 const MetaManager = require('./../meta/MetaManager');
 const serviceManager = require('./../meta/ServiceManager');
 const logger = require("./../log")
+var Router = require('express').Router;
 
 class MetaRoute{
 
-    constructor(router,intercept) {
-        this.router = router;
+    constructor(intercept) {
         this.intercept = intercept;
+        this.router = Router();
         serviceManager.init();
         this.init();
     }

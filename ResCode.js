@@ -9,6 +9,10 @@ var ResCode = {
     MetaServiceAdd:"001",
     MetaServiceDelete:"002",
 
+    DataException : "020",
+
+    DataValidateException:"021",
+
     error:function(type,e){
           if(Array.isArray(type)  && typeof(e) == 'undefined'){
             return {'code':type[0],'message':type[1]};

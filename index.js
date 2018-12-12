@@ -2,6 +2,7 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var config = require('./config');
 var MetaRouter = require('./routes/MetaRoute');
+var DataRouter = require('./routes/DataRoute');
 const auth = require('./authentication');
 var log4js=require('log4js');
 var logger=require('./log');
@@ -28,10 +29,6 @@ class WebServer {
             logger.error("please config file <config.js>,set jwtsecret value");
             ok = false;
         }
-        if (this.config.dbstore == null) {
-            logger.error("please config file <config.js>,set dbstore value");
-            ok = false;
-        }
         if (this.config.database == null) {
             logger.error("please config file <config.js>,set database value");
             ok = false;
@@ -44,8 +41,10 @@ class WebServer {
         this.app.use(bodyParser.json());
         this.app.use(log4js.connectLogger(logger, { level: 'auto' }));
         this.app.use('/auth', auth.getToken);
-        var metaRouter = new MetaRouter(express.Router(), auth.intercept);
+        var metaRouter = new MetaRouter(auth.intercept);
         this.app.use('/meta', metaRouter.router);
+        var dataRouter = new DataRouter(auth.intercept);
+        this.app.use('/data', dataRouter.router);
     }
 
     start() {

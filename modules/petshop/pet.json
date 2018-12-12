@@ -1,0 +1,9 @@
+{
+    "tableName":"pet",
+    "primary":"id",
+    "fields":[
+        { "name": "id", "type": "int" }, 
+        { "name": "name", "type": "string" ,"length" : 12,"notNullable":true}, 
+        { "name": "age", "type": "int" ,"default": 10}
+    ]
+}

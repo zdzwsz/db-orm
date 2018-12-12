@@ -59,12 +59,12 @@ class BasicService{
                 if(value && value.length && value.length>0){
                     returnValue = value[0];
                 }
-                callback(returnValue,null);
+                callback(null,returnValue);
             }
         }).catch(function (e) {
             logger.error(e);
             if (callback) {
-                callback(null,e)
+                callback(e,null)
             }
         });
     }

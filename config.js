@@ -7,23 +7,11 @@ module.exports = {
     'password': '123456'
   },
   'jwtsecret': 'myjwttest',
-  'dbstore': 'd:/dbstore',
   database: {
     dbtype:'mysql',
     host: '127.0.0.1',
     user: 'root',
     password: '123456',
     dbname: 'test'
-  },
-  'log':{
-    appenders: {
-      "out": { type: 'stdout' },
-      "info": { type: 'file', filename: './logs/info.log' },
-      "just-errors": { type: 'file', filename: './logs/error.log' },
-      'error': { type: 'logLevelFilter', appender: 'just-errors', level: 'error' }
-    },
-    categories: {
-      default: { appenders: [ 'out', 'info','error' ], level: 'debug' }
-    }
   }
 };

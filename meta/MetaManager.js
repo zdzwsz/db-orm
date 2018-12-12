@@ -1,7 +1,6 @@
 var fs = require("fs")
 var path = require('path');
 var ResCode = require('./../ResCode')
-var config = require('./../config');
 var TableMeta = require("./../db/TableMeta")
 var EventEmitter = require('events').EventEmitter;
 const logger = require("./../log")
@@ -18,13 +17,7 @@ class MetaManager extends EventEmitter {
     }
 
     init() {
-        this.storePath = config.dbstore;
-        if (this.storePath.indexOf(".") == 0) {
-            this.storePath = path.join(__dirname, this.storePath);
-        }
-        if (!fs.existsSync(this.storePath)) {
-            fs.mkdirSync(this.storePath);
-        }
+        this.storePath = path.join(__dirname, "../modules");
     }
 
     service(service, name, action, req) {

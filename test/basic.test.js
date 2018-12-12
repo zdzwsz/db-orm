@@ -15,7 +15,7 @@ var table_meta = {
 }
 
 
-describe.only('数据增删改查操作 测试', function () {
+describe.skip('数据增删改查操作 测试', function () {
 
     before(function(done){
         this.timeout(4000);
@@ -49,7 +49,7 @@ describe.only('数据增删改查操作 测试', function () {
     it('查询数据 basicService.get', function (done) {
         this.timeout(3000);
         var basicService = new BasicService(table_meta.tableName,table_meta.primary)
-        basicService.get(1,function (data,e) {
+        basicService.get(1,function (e,data) {
             should.not.exist(e);
             data.should.have.property('name','zdz');
             done(e);
