@@ -14,12 +14,9 @@ class KnexManager {
             });
     }
     static getKnex() {
-        if (!KnexManager.instance) {
-            KnexManager.instance = new KnexManager();
-            console.log("create database pool");
-        }
-        return KnexManager.instance.knex
+        var instance = new KnexManager();
+        return instance.knex
     }
 }
 
-exports = module.exports = KnexManager
+module.exports = KnexManager
