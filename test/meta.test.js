@@ -1,6 +1,6 @@
 
 var should = require('should');
-var knex = require("./../db/KnexManager").getKnex();
+var KnexManager = require("./../db/KnexManager");
 var app = require('../index');
 var supertest = require('supertest');
 var request = supertest(app);
@@ -43,13 +43,14 @@ describe('元数据服务 测试', function () {
             })
     });
 
-    after(function () {
+    after(function (done) {
         request.post('/meta/' + test_data_type + '/delete')
             .set('x-access-token', token)
             .then(function () {
                 console.log("测试完成,关闭API服务器");
-                knex.destroy();
+                KnexManager.destroy();
                 app.close();
+                done();
             })
     });
 

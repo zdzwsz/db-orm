@@ -1,4 +1,4 @@
-var knex = require("./../db/KnexManager").getKnex();
+var KnexManager = require("./../db/KnexManager");
 var TableMeta = require("./../db/TableMeta")
 var app = require('../index');
 var should = require('should');
@@ -54,11 +54,11 @@ var delete_field ={
     ]
 }
 
-describe.skip('元数据数据库操作 测试', function () {
+describe('元数据数据库操作 测试', function () {
 
     after(function () {
         console.log("close database pool!");
-        knex.destroy();
+        KnexManager.destroy();
         app.close();
     })
 

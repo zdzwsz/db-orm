@@ -14,8 +14,24 @@ class KnexManager {
             });
     }
     static getKnex() {
-        var instance = new KnexManager();
-        return instance.knex
+        if(KnexManager.instance == null){
+            KnexManager.instance = new KnexManager();
+            KnexManager.status = true;
+        }
+        if(!KnexManager.status){
+            KnexManager.instance = new KnexManager();
+            KnexManager.status = true;
+        }
+        return KnexManager.instance.knex
+    }
+
+    static destroy(){
+        if(KnexManager.instance != null){
+            setTimeout(function(){
+                KnexManager.instance.knex.destroy();
+            },5000);
+            KnexManager.status = false;
+        }
     }
 }
 

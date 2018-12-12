@@ -1,4 +1,4 @@
-var knex = require("./../db/KnexManager").getKnex();
+var KnexManager = require("./../db/KnexManager");
 var BasicService = require("./../db/BasicService")
 var app = require('../index');
 var should = require('should');
@@ -15,7 +15,7 @@ var table_meta = {
 }
 
 
-describe.skip('数据增删改查操作 测试', function () {
+describe('数据增删改查操作 测试', function () {
 
     before(function(done){
         this.timeout(4000);
@@ -30,7 +30,7 @@ describe.skip('数据增删改查操作 测试', function () {
         var table = TableMeta.load(table_meta);
         table.delete(function(){
             console.log("close database pool!");
-            knex.destroy();
+            KnexManager.destroy();
             app.close();
             done();
         });
