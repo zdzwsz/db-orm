@@ -1,7 +1,7 @@
-var fs = require("fs")
 var path = require('path');
-var ResCode = require('./../ResCode')
-var BasicService = require("./../db/BasicService")
+var ResCode = require('./../ResCode');
+var ClassManager = require("./ClassManager");
+
 var EventEmitter = require('events').EventEmitter;
 const logger = require("./../log")
 
@@ -72,30 +72,15 @@ class DataManager extends EventEmitter {
 
     getServiceClass(service, name){
         name = name.substring(0,1).toUpperCase()+name.substring(1);
-        let filepath = this.storePath + "/" + service + "/" + name + "Service.js";
-        let serviceClass = DataManager.classMap.get(filepath);
-        if(serviceClass != null)return serviceClass;
-        if(fs.existsSync(filepath)){
-            logger.info("load service...... "+filepath);
-            serviceClass = require(filepath);
-            if(!serviceClass instanceof BasicService){
-                logger.error(filepath +" is not a service,use BasicService!");
-                serviceClass = BasicService;
-            }
-        }
-        else{
-            serviceClass = BasicService;
-        }
-        DataManager.classMap.set(filepath,serviceClass);
-        return serviceClass;
+        let filepath = this.storePath + path.sep + service + path.sep + name + "Service.js";
+        return ClassManager.getClass(filepath);
     }
 
     getMetaJson(service, name) {
-        var filepath = this.storePath + "/" + service + "/" + name + ".json"
+        var filepath = this.storePath + path.sep + service + path.sep + name + ".json"
         return require(filepath);
     }
 
 }
-DataManager.classMap = new Map();
 
 module.exports = DataManager;

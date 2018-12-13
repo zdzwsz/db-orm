@@ -9,7 +9,7 @@ class PetService extends BasicService{
     }
 
     get(id,callback){
-        log.debug("welcome to my pet shop!")
+        log.debug("welcome to my pet shop, no no oooooo!");
         super.get(id,callback);
     }
 }
