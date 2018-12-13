@@ -8,7 +8,7 @@ var test_delete = { p0: 1 };
 var test_get = { p0: 1 };
 var test_update = { p0: { id: 1, name: "egg", age: "21" } };
 
-describe('数据服务增删查改 测试', function () {
+describe.only('数据服务增删查改 测试', function () {
   var token = null;
 
   before(function () {
