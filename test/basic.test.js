@@ -65,6 +65,15 @@ describe('数据增删改查操作 测试', function () {
         })
     })
 
+    it('执行sql测试 basicService.execSql', function (done) {
+        this.timeout(3000);
+        var basicService = new BasicService(table_meta.tableName,table_meta.primary)
+        basicService.execSql("update "+ table_meta.tableName+" set name =? where id =?",["321",1],function (e) {
+            should.not.exist(e);
+            done(e);
+        })
+    })
+
     it('删除数据 basicService.delete', function (done) {
         this.timeout(3000);
         var basicService = new BasicService(table_meta.tableName,table_meta.primary)
