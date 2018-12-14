@@ -1,4 +1,4 @@
-knex = require("./KnexManager").getKnex();
+const knex = require("./KnexManager").getKnex();
 const logger = require("./../log")
 
 class BasicService{
@@ -68,6 +68,34 @@ class BasicService{
             }
         });
     }
+
+    select(sql,parameter,callback){
+        var raw = null;
+        if(parameter){
+            raw = knex.raw(sql,parameter);
+        }else{
+            raw = knex.raw(sql);
+        }
+        
+        raw.then(function(data){
+            if(callback){
+                if(Array.isArray(data) && Array.isArray(data[0])){
+                    data = data[0];
+                }
+                callback(null,data);
+            }
+        }).catch(function(e){
+            logger.error(e);
+            if(callback){
+                callback(e);
+            }
+        })
+    }
+
+    execSql(sqls,parameter,callback){
+
+    }
+
 }
 
 module.exports = BasicService

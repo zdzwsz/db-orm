@@ -78,7 +78,8 @@ class DataManager extends EventEmitter {
 
     getMetaJson(service, name) {
         var filepath = this.storePath + path.sep + service + path.sep + name + ".json"
-        return require(filepath);
+        let json = require(filepath);
+        return json;
     }
 
 }

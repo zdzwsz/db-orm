@@ -62,6 +62,31 @@ describe.only('数据服务增删查改 测试', function () {
       });
   });
 
+  it('测试定义服务 /data/petshop/pet/all', function (done) {
+    request.post('/data/petshop/pet/all')
+      .set('x-access-token', token)
+      .expect('Content-Type', /json/)
+      .end(function (err, res) {
+        should.not.exist(err);
+        console.log(res.body)
+        res.body.should.have.property('code', '000');
+        done(err);
+      });
+  });
+
+  it('测试定义服务 /data/petshop/pet/searchName', function (done) {
+    request.post('/data/petshop/pet/searchName')
+      .set('x-access-token', token)
+      .send({p0:'wsz'})
+      .expect('Content-Type', /json/)
+      .end(function (err, res) {
+        should.not.exist(err);
+        console.log(res.body)
+        res.body.should.have.property('code', '000');
+        done(err);
+      });
+  });
+
   it('删除一条记录', function (done) {
     request.post('/data/petshop/pet/delete')
       .set('x-access-token', token)
