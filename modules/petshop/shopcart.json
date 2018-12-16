@@ -1,0 +1,10 @@
+{
+    "tableName":"shopcart",
+    "primary":"guid",
+    "fields":[
+        { "name": "guid", "type": "string" }, 
+        { "name": "petid", "type": "int" , "notNullable":true}, 
+        { "name": "price", "type": "float"},
+        { "name": "amount", "type": "float"}
+    ]
+}

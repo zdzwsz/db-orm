@@ -6,7 +6,7 @@ var should = require('should');
 tableName = 'pet';
 primary = 'id';
 
-describe.only('PetService 测试例子 增删改查操作 测试', function () {
+describe('PetService 测试例子 增删改查操作 测试', function () {
     var service = new PetService(tableName, primary)
     after(function (done) {
         this.timeout(4000);
@@ -43,7 +43,7 @@ describe.only('PetService 测试例子 增删改查操作 测试', function () {
         })
     })
 
-    it('更新数据 PetService.execSql', function (done) {
+    it('多sql语句执行 PetService.execSql', function (done) {
         this.timeout(3000);
         let sqls = ["update " + tableName + " set name =? where id =?",
         "update " + tableName + " set age =? where id =?",
@@ -58,7 +58,6 @@ describe.only('PetService 测试例子 增删改查操作 测试', function () {
 
     it('删除数据 PetService.delete', function (done) {
         this.timeout(3000);
-
         service.delete(99, function (e) {
             should.not.exist(e);
             done(e);

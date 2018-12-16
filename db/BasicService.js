@@ -72,12 +72,11 @@ class BasicService {
 
     select(sql, parameter, callback) {
         var raw = null;
-        if (parameter) {
+        if (Array.isArray(parameter)) {
             raw = knex.raw(sql, parameter);
         } else {
             raw = knex.raw(sql);
         }
-
         raw.then(function (data) {
             if (callback) {
                 if (Array.isArray(data) && Array.isArray(data[0])) {
@@ -94,16 +93,30 @@ class BasicService {
     }
 
     execSql(sqls, parameters, callback) {
+        let argsLength = arguments.length;
         knex.transaction(function (trx) {
             return Promise.map(sqls, function (sql, i) {
-                return trx.raw(sql, parameters[i]);
+                if (argsLength == 3 || (argsLength == 2 && Array.isArray(parameter))) {
+                    if(Array.isArray(parameters[i])){
+                        return trx.raw(sql, parameters[i]);
+                    }else{
+                        return trx.raw(sql);
+                    }
+                }
+                else {
+                    return trx.raw(sql);
+                }
             })
         })
             .then(function (data) {
-                callback(null, data);
+                if (callback) {
+                    callback(null, data);
+                }
             })
             .catch(function (error) {
-                callback(error);
+                if (callback) {
+                    callback(error);
+                }
             });
     }
 
