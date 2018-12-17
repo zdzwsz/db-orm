@@ -1,4 +1,5 @@
 const DataManager = require('../data/DataManager');
+const processManager = require('../data/ProcessManager');
 const logger = require("../log")
 var Router = require('express').Router;
 
@@ -8,6 +9,7 @@ class DataRoute{
         this.intercept = intercept;
         this.router = Router();
         this.init();
+        processManager.init();
     }
 
     init(){
@@ -30,6 +32,15 @@ class DataRoute{
                 res.json(message)
             })
             dataManager.service(service, entity, action, req);
+        })
+    }
+
+    postLogic(){
+        this.router.post('/:service/:action', function (req, res) {
+            let service = req.params.service;
+            let action = req.params.action;
+            logger.info("post Logic: " + service + "," + action);
+            processManager.service(service, action,req,res);
         })
     }
 }
