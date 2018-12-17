@@ -1,6 +1,8 @@
 const Reply = require("./Reply");
 const ProcessLoader = require("./ProcessLoader");
 const DB = require("../db/DB");
+const code = require("./ReplyCode.json")
+const logger = require("./../log");
 var processManager = {
 
     init() {
@@ -26,7 +28,18 @@ var processManager = {
         parameter.push(db);
         const reply = new Reply();
         reply.end(function (message) {
+            if (typeof (message) == "object") {
+                if (message.code === code.ok[0]) {
+                    res.json(message);
+                    return;
+                }else if(message.code === code.error){
+                    logger.error("error code:"+message.code + " message:"+ message.data.message);
+                    throw message.data;
+                }
+            }
+            logger.error(message);
             res.json(message);
+            throw new Error(message);
         })
         parameter.push(reply);
         return parameter;

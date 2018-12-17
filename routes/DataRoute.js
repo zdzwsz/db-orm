@@ -13,8 +13,9 @@ class DataRoute{
     }
 
     init(){
-       this.filter();
+       //this.filter();
        this.postData();
+       this.postLogic();
     }
 
     filter(){
