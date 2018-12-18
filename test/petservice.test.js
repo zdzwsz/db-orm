@@ -1,10 +1,11 @@
-var KnexManager = require("./../db/KnexManager");
-var PetService = require("./../modules/petshop/PetService")
+var KnexManager = require("../db/KnexManager");
+var PetService = require("../modules/petshop/PetService")
 var app = require('../index');
 var should = require('should');
 
 tableName = 'pet';
 primary = 'id';
+
 
 describe('PetService 测试例子 增删改查操作 测试', function () {
     var service = new PetService(tableName, primary)

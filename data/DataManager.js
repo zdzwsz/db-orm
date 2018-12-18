@@ -41,6 +41,9 @@ class DataManager extends EventEmitter {
                 break;
             }
         }
+        if(typeof(json) =="object" && JSON.stringify(json) != '{}' && parameter.length==0){
+            parameter.push(json);
+        }
         parameter.push(function(e,result){
             if (e) {
                 logger.error(e);

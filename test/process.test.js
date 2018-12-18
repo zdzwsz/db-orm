@@ -12,13 +12,17 @@ var req2 = {
   body : {"p0":{"guid":UUID.v1(),"petid":2,"price":23,"amount":4}}
 }
 
+var req3 = {
+  body : {"p0":{"guid":UUID.v1(),"petid":2,"price":13,"amount":6}}
+}
+
 var res = {
   json:function(message){
-     console.log(message);
+     console.log(message.code);
   }
 }
 
-describe.only('processManager.js 测试', function () {
+describe('processManager.js 测试', function () {
   var processManager = require("../data/ProcessManager");
   processManager.init();
 
@@ -35,18 +39,18 @@ describe.only('processManager.js 测试', function () {
       done();
   });
 
-  it.skip('测试 petshop get 服务',function(done){
+  it('测试 petshop get 服务',function(done){
     processManager.service("petshop","get",req1,res);
     done();
   })
 
-  it.skip('测试 petshop add 服务',function(done){
+  it('测试 petshop add 服务',function(done){
     processManager.service("petshop","add",req2,res);
     done();
   })
 
   it('测试 petshop total 服务',function(done){
-    processManager.service("petshop","total",req2,res);
+    processManager.service("petshop","total",req3,res);
     done();
   })
 

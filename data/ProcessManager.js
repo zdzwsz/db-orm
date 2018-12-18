@@ -1,8 +1,9 @@
 const Reply = require("./Reply");
 const ProcessLoader = require("./ProcessLoader");
-const DB = require("../db/DB");
-const code = require("./ReplyCode.json")
+const DB = require("./DB");
+const code = require("./ReplyCode.json");
 const logger = require("./../log");
+const LogicError = require("./LogicError");
 var processManager = {
 
     init() {
@@ -24,6 +25,9 @@ var processManager = {
                 break;
             }
         }
+        if(typeof(json) =="object" && JSON.stringify(json) != '{}' && parameter.length==0){
+            parameter.push(json);
+        }
         const db = new DB();
         parameter.push(db);
         const reply = new Reply();
@@ -39,7 +43,7 @@ var processManager = {
             }
             logger.error(message);
             res.json(message);
-            throw new Error(message);
+            throw new LogicError(message);
         })
         parameter.push(reply);
         return parameter;

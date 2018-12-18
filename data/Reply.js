@@ -87,7 +87,7 @@ class Reply extends EventEmitter {
     }
 
     createException(index,message){
-        return {"code":index[0],message:index[1],data:message}
+        return {"code":index[0],type:index[1],message:message}
     }
 
     createData(data){

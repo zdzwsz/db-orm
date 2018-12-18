@@ -1,8 +1,9 @@
-const knex = require("./KnexManager").getKnex();
+const knex = require("../db/KnexManager").getKnex();
 var fs = require("fs");
-const logger = require("./../log")
+const logger = require("../log")
 var path = require("path");
 var Promise = require('bluebird');
+const LogicError = require("./LogicError");
 class DB {
     constructor() {
         this.init();
@@ -76,54 +77,56 @@ class DB {
         let transaction = this.transaction;
         let tran = this.tran;
         this.init();
-        if(tran != null){
-            let i =0;
+        if (tran != null) {
+            let i = 0;
             DB.one(sqlRunners[i], tran, i, sqlRunners.length, callback, true);
-        }else{
+        } else {
             if (transaction) {
                 this.execSql(sqlRunners, callback);
             } else {
                 this.selectSql(sqlRunners, callback);
             }
         }
-        
+
     }
 
     go(callback) {
         let sqlRunners = this.sqlRunners;
         this.sqlRunners = [];
         let i = 0;
-        if(this.tran == null){
+        if (this.tran == null) {
             var _this = this;
             knex.transaction(function (trx) {
                 _this.tran = trx;
                 DB.one(sqlRunners[i], trx, i, sqlRunners.length, callback);
             })
                 .then(function (data) {
-                    console.log("data:"+data);
+                    //console.log(data);
                 })
                 .catch(function (error) {
-                    console.log("error:"+ error);
+                    logger.error(error);
                 });
-        }else{
+        } else {
             DB.one(sqlRunners[i], this.tran, i, sqlRunners.length, callback);
         }
     }
 
-    static one(raw, trx, i, time,callback,commit) {
+    static one(raw, trx, i, time, callback, commit) {
         raw.transacting(trx).then(function (data) {
             if (i == time - 1) {
-                if(commit){
+                callback(null, data);
+                if (commit) {
                     trx.commit();
                 }
-                callback(null,data);
             } else {
                 i++;
                 DB.one(sqlRunners[i], trx, i, time, callback);
             }
-        }).catch(function(e){
+        }).catch(function (e) {
             trx.rollback();
-            callback(e);
+            if (!e instanceof LogicError) {
+                callback(e);
+            }
         });
     }
 
@@ -141,7 +144,9 @@ class DB {
                 }
             }).catch(function (error) {
                 if (callback) {
-                    callback(error, null, i);
+                    if (!error instanceof LogicError) {
+                        callback(error, null, i);
+                    }
                 }
             })
         }
@@ -161,7 +166,9 @@ class DB {
         })
             .catch(function (error) {
                 if (callback) {
+                   if(!error instanceof LogicError){
                     callback(error);
+                   }
                 }
             });
     }
