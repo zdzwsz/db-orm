@@ -2,13 +2,14 @@
 var app = require('../index');
 var should = require('should');
 var KnexManager = require("./../db/KnexManager");
+var UUID = require('uuid');
 
 var req1 = {
   body : ""
 }
 
 var req2 = {
-  body : {"p0":{"guid":'34234',"petid":2,"price":23,"amount":4}}
+  body : {"p0":{"guid":UUID.v1(),"petid":2,"price":23,"amount":4}}
 }
 
 var res = {
@@ -34,13 +35,18 @@ describe.only('processManager.js 测试', function () {
       done();
   });
 
-  it('测试 petshop get 服务',function(done){
+  it.skip('测试 petshop get 服务',function(done){
     processManager.service("petshop","get",req1,res);
     done();
   })
 
-  it('测试 petshop add 服务',function(done){
+  it.skip('测试 petshop add 服务',function(done){
     processManager.service("petshop","add",req2,res);
+    done();
+  })
+
+  it('测试 petshop total 服务',function(done){
+    processManager.service("petshop","total",req2,res);
     done();
   })
 
