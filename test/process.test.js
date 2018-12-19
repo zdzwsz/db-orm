@@ -3,22 +3,11 @@ var app = require('../index');
 var should = require('should');
 var KnexManager = require("./../db/KnexManager");
 var UUID = require('uuid');
-
-var req1 = {
-  body : ""
-}
-
-var req2 = {
-  body : {"p0":{"guid":UUID.v1(),"petid":2,"price":23,"amount":4}}
-}
-
-var req3 = {
-  body : {"p0":{"guid":UUID.v1(),"petid":2,"price":13,"amount":6}}
-}
+var logger = require("../log");
 
 var res = {
   json:function(message){
-     console.log(message.code);
+     logger.debug(message.code);
   }
 }
 
@@ -40,17 +29,34 @@ describe('processManager.js 测试', function () {
   });
 
   it('测试 petshop get 服务',function(done){
-    processManager.service("petshop","get",req1,res);
+    var req = {
+      body : ""
+    }
+    processManager.service("petshop","get",req,res);
     done();
   })
 
   it('测试 petshop add 服务',function(done){
-    processManager.service("petshop","add",req2,res);
+    var req = {
+      body : {"p0":{"guid":UUID.v1(),"petid":2,"price":23,"amount":4}}
+    }
+    processManager.service("petshop","add",req,res);
     done();
   })
 
   it('测试 petshop total 服务',function(done){
-    processManager.service("petshop","total",req3,res);
+    var req = {
+      body : {"p0":{"guid":UUID.v1(),"petid":2,"price":13,"amount":6}}
+    }
+    processManager.service("petshop","total",req,res);
+    done();
+  })
+
+  it('测试 petshop param 变参数测试',function(done){
+    var req = {
+      body : {"p0":1,"p1":{name:"zdzwsz"}}
+    }
+    processManager.service("petshop","param",req,res);
     done();
   })
 

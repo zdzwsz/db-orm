@@ -13,10 +13,10 @@ var processManager = {
     service(service, action, req, res) {
         let data = req.body;
         let Process = ProcessLoader.loadProcess(service, action);
-        Reflect.apply(Process, null, this.getParameter(data, res));
+        Reflect.apply(Process, null, this.getParameter(data, res,Process.length));
     },
 
-    getParameter(json, res) {
+    getParameter(json, res, number) {
         var parameter = []
         for (let i = 0; i < 10000; i++) {
             if (json["p" + i]) {
@@ -27,6 +27,9 @@ var processManager = {
         }
         if(typeof(json) =="object" && JSON.stringify(json) != '{}' && parameter.length==0){
             parameter.push(json);
+        }
+        while(number - 2 > parameter.length){
+            parameter.push(null);
         }
         const db = new DB();
         parameter.push(db);

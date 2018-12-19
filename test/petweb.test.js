@@ -32,7 +32,7 @@ describe('pet 业务服务测试', function () {
       .expect('Content-Type', /json/)
       .end(function (err, res) {
         should.not.exist(err);
-        res.body.should.have.property('code', '003');
+        res.body.should.have.property('code', '000');
         done(err);
       });
   });

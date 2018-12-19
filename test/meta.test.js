@@ -94,7 +94,7 @@ describe('元数据服务 测试', function () {
 
 
     it('删除元数据服务', function (done) {
-        this.timeout(2000);
+        this.timeout(4000);
         request.post('/meta/' + test_data_type + '/' + test_entry_name + '/delete')
             .set('x-access-token', token)
             .expect('Content-Type', /json/)
