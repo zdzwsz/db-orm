@@ -4,7 +4,7 @@ var app = require('../index');
 var supertest = require('supertest');
 var request = supertest(app);
 
-describe('业务分类 测试', function () {
+describe.only('业务分类 测试', function () {
   var token = null;
  
   before(function () {
@@ -18,6 +18,42 @@ describe('业务分类 测试', function () {
   after(function () {
     console.log("测试完成,关闭API服务器");
     app.close();
+  });
+
+  it('获取所有业务分类', function (done) {
+    request.post('/meta/all')
+      .set('x-access-token', token)
+      .expect('Content-Type', /json/)
+      .end(function (err, res) {
+        should.not.exist(err);
+        console.log(res.body);
+        res.body.should.have.property('code', '000');
+        done(err);
+      });
+  });
+
+  it('获取petshop所有业务实体', function (done) {
+    request.post('/meta/petshop/entity')
+      .set('x-access-token', token)
+      .expect('Content-Type', /json/)
+      .end(function (err, res) {
+        should.not.exist(err);
+        console.log(res.body);
+        res.body.should.have.property('code', '000');
+        done(err);
+      });
+  });
+
+  it('获取petshop所有业务服务', function (done) {
+    request.post('/meta/petshop/service')
+      .set('x-access-token', token)
+      .expect('Content-Type', /json/)
+      .end(function (err, res) {
+        should.not.exist(err);
+        console.log(res.body);
+        res.body.should.have.property('code', '000');
+        done(err);
+      });
   });
 
   it('建立业务分类', function (done) {

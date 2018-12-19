@@ -34,7 +34,7 @@ class DataManager extends EventEmitter {
 
     getParameter(json,_this){
         var parameter = []
-        for(let i = 0;i<10000;i++){
+        for(let i = 0;i<200;i++){
             if(json["p"+i]){
                 parameter.push(json["p"+i])
             }else{
