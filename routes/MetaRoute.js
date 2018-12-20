@@ -56,10 +56,32 @@ class MetaRoute{
             res.json(categoryManager.getEntity(service));
         });
 
-        this.router.post('/:service/service', function (req, res) {
+        this.router.post('/:service/ws', function (req, res) {
             logger.info("get Service");
             let service = req.params.service;
             res.json(categoryManager.getService(service));
+        });
+
+        this.router.post('/:service/gcode', function (req, res) {
+            logger.info("get Service code");
+            let service = req.params.service;
+            let name = req.body.name;
+            res.json(categoryManager.getWsCode(service,name));
+        });
+
+        this.router.post('/:service/scode', function (req, res) {
+            logger.info("set Service code");
+            let service = req.params.service;
+            let name = req.body.name;
+            let base64 = req.body.code;
+            res.json(categoryManager.setWsCode(service,name,base64));
+        });
+
+        this.router.post('/:service/dcode', function (req, res) {
+            logger.info("delete Service code");
+            let service = req.params.service;
+            let name = req.body.name;
+            res.json(categoryManager.delWsCode(service,name));
         });
     }
     

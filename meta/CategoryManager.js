@@ -57,10 +57,45 @@ var CategoryManager = {
             for (let i = 0; i < files.length; i++) {
                 let index = files[i].indexOf(".service.js");
                 if (index > 0) {
-                    returnjsons.push(files[i]);
+                    returnjsons.push(files[i].substring(0,index));
                 }
             }
             return ResCode.data(returnjsons);
+        } catch (e) {
+            logger.error(e);
+            return ResCode.error(ResCode.MetaAdd, e);
+        }
+    },
+
+    getWsCode: function (service,name) {
+        var file = this.getFileName(service) + path.sep + name+ ".service.js";
+        try {
+            var jscode = fs.readFileSync(file);
+            returnjsons = new Buffer(jscode).toString('base64');
+            return ResCode.data(returnjsons);
+        } catch (e) {
+            logger.error(e);
+            return ResCode.error(ResCode.MetaAdd, e);
+        }
+    },
+
+    setWsCode:function (service,name,code){
+        var file = this.getFileName(service) + path.sep + name+ ".service.js";
+        try {
+            var jscode = new Buffer(code, 'base64');
+            fs.writeFileSync(file, jscode);
+            return ResCode.OK;
+        } catch (e) {
+            logger.error(e);
+            return ResCode.error(ResCode.MetaAdd, e);
+        }
+    },
+
+    delWsCode:function(service,name){
+        var file = this.getFileName(service) + path.sep + name+ ".service.js";
+        try {
+            fs.unlinkSync(file);
+            return ResCode.OK;
         } catch (e) {
             logger.error(e);
             return ResCode.error(ResCode.MetaAdd, e);
@@ -71,7 +106,7 @@ var CategoryManager = {
         var file = this.getFileName(service);
         try {
             fs.rmdirSync(file);
-            return ResCode.OK
+            return ResCode.OK;
         } catch (e) {
             logger.error(e);
             return ResCode.error(ResCode.MetaDelete, e);

@@ -4,7 +4,9 @@ var app = require('../index');
 var supertest = require('supertest');
 var request = supertest(app);
 
-describe.only('业务分类 测试', function () {
+var codeBase64 = "c2VydmljZSgncGFyYW0nLCBmdW5jdGlvbiAodjEsIHYyLCB2MywgZGIsIHJlcGx5KSB7CiAgICBzbG9nLmluZm8oInYxIHZhbHVlIGlzOiIgKyB2MSk7CiAgICBzbG9nLmluZm8oInYyIHZhbHVlIGlzOiIgKyB2Mik7CiAgICBzbG9nLmluZm8oInYzIHZhbHVlIGlzOiIgKyB2Myk7CiAgICByZXBseS5vaygpOwp9KQ=="
+
+describe('业务分类 测试', function () {
   var token = null;
  
   before(function () {
@@ -45,8 +47,48 @@ describe.only('业务分类 测试', function () {
   });
 
   it('获取petshop所有业务服务', function (done) {
-    request.post('/meta/petshop/service')
+    request.post('/meta/petshop/ws')
       .set('x-access-token', token)
+      .expect('Content-Type', /json/)
+      .end(function (err, res) {
+        should.not.exist(err);
+        console.log(res.body);
+        res.body.should.have.property('code', '000');
+        done(err);
+      });
+  });
+
+
+  it('新增petshop test业务代码', function (done) {
+    request.post('/meta/petshop/scode')
+      .set('x-access-token', token)
+      .send({"name":"test","code":codeBase64})
+      .expect('Content-Type', /json/)
+      .end(function (err, res) {
+        should.not.exist(err);
+        console.log(res.body);
+        res.body.should.have.property('code', '000');
+        done(err);
+      });
+  });
+
+  it('获取petshop test业务代码', function (done) {
+    request.post('/meta/petshop/gcode')
+      .set('x-access-token', token)
+      .send({"name":"test"})
+      .expect('Content-Type', /json/)
+      .end(function (err, res) {
+        should.not.exist(err);
+        console.log(res.body);
+        res.body.should.have.property('code', '000');
+        done(err);
+      });
+  });
+
+  it('删除petshop test业务代码', function (done) {
+    request.post('/meta/petshop/dcode')
+      .set('x-access-token', token)
+      .send({"name":"test"})
       .expect('Content-Type', /json/)
       .end(function (err, res) {
         should.not.exist(err);
