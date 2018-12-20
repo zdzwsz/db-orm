@@ -11,7 +11,7 @@ var res = {
   }
 }
 
-describe('processManager.js 测试', function () {
+describe.only('processManager.js 测试', function () {
   var processManager = require("../data/ProcessManager");
   processManager.init();
 
