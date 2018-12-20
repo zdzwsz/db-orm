@@ -19,7 +19,7 @@ class DataManager extends EventEmitter {
     }
 
     init() {
-        this.storePath = path.join(__dirname, "../modules");
+        this.storePath = require("../module");
     }
 
     service(service, name, action, req) {

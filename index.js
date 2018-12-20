@@ -4,8 +4,9 @@ var config = require('./config');
 var MetaRouter = require('./routes/MetaRoute');
 var DataRouter = require('./routes/DataRoute');
 const auth = require('./authentication');
-var log4js=require('log4js');
-var logger=require('./log');
+var log4js = require('log4js');
+var logger = require('./log');
+var fs = require("fs");
 
 class WebServer {
     constructor(config) {
@@ -21,6 +22,19 @@ class WebServer {
             return false;
         }
         var ok = true;
+        if (this.config.modules == null || this.config.modules == "") {
+            logger.error("please config file <config.js>,set modules value");
+            ok = false;
+        } else {
+            if (!fs.existsSync(this.config.modules)) {
+                try{
+                    fs.mkdirSync(this.config.modules)
+                }catch(e){
+                    logger.error(e);
+                    ok = false;
+                }
+            }
+        }
         if (this.config.users == null) {
             logger.error("please config file <config.js>,set user name and user password");
             ok = false;
@@ -50,7 +64,7 @@ class WebServer {
     start() {
         if (this.validate()) {
             this.server = this.app.listen(this.config.network.port);
-            logger.info("server start at:"+this.config.network.port);
+            logger.info("server start at:" + this.config.network.port);
         }
     }
 

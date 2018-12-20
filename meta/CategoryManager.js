@@ -6,7 +6,7 @@ const logger = require("../log")
 var CategoryManager = {
     storePath: null,
     init: function () {
-        this.storePath = path.join(__dirname, "../modules");
+        this.storePath = require("../module");
     },
 
     service: function (service, action) {
