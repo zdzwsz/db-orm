@@ -1,8 +1,8 @@
 var should = require('should');
 var test_data = '_test_servive__';
-var app = require('../index');
+var webServer = require('../index');
 var supertest = require('supertest');
-var request = supertest(app);
+var request = supertest(webServer.server);
 
 var codeBase64 = "c2VydmljZSgncGFyYW0nLCBmdW5jdGlvbiAodjEsIHYyLCB2MywgZGIsIHJlcGx5KSB7CiAgICBzbG9nLmluZm8oInYxIHZhbHVlIGlzOiIgKyB2MSk7CiAgICBzbG9nLmluZm8oInYyIHZhbHVlIGlzOiIgKyB2Mik7CiAgICBzbG9nLmluZm8oInYzIHZhbHVlIGlzOiIgKyB2Myk7CiAgICByZXBseS5vaygpOwp9KQ=="
 
@@ -19,7 +19,7 @@ describe('业务分类 测试', function () {
 
   after(function () {
     console.log("测试完成,关闭API服务器");
-    app.close();
+    webServer.stop();
   });
 
   it('获取所有业务分类', function (done) {

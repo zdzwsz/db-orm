@@ -1,9 +1,9 @@
 
 var should = require('should');
 var KnexManager = require("./../db/KnexManager");
-var app = require('../index');
+var webServer = require('../index');
 var supertest = require('supertest');
-var request = supertest(app);
+var request = supertest(webServer.server);
 
 var test_data_type = '_test_servive__';
 var test_entry_name = '_test_entry__'
@@ -49,7 +49,7 @@ describe('元数据服务 测试', function () {
             .then(function () {
                 console.log("测试完成,关闭API服务器");
                 KnexManager.destroy();
-                app.close();
+                webServer.stop();
                 done();
             })
     });

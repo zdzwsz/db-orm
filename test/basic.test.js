@@ -1,9 +1,8 @@
 var KnexManager = require("./../db/KnexManager");
-var BasicService = require("./../db/BasicService")
-var app = require('../index');
+var webServer = require('../index');
 var should = require('should');
-var TableMeta = require("./../db/TableMeta")
-
+var TableMeta = require("../db/TableMeta")
+var BasicService = require("../db/BasicService")
 var table_meta = {
     "tableName":"_test_sys_users_",
     "primary":"id",
@@ -15,7 +14,7 @@ var table_meta = {
 }
 
 
-describe.only("基础数据服务测试 basicService", function () {
+describe("基础数据服务测试 basicService", function () {
 
     before(function(done){
         this.timeout(4000);
@@ -31,7 +30,7 @@ describe.only("基础数据服务测试 basicService", function () {
         table.delete(function(){
             console.log("close database pool!");
             KnexManager.destroy();
-            app.close();
+            webServer.stop();
             done();
         });
        

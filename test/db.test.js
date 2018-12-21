@@ -1,6 +1,6 @@
 var KnexManager = require("./../db/KnexManager");
 var TableMeta = require("./../db/TableMeta")
-var app = require('../index');
+var webServer = require('../index');
 var should = require('should');
 
 var table_new = {
@@ -59,7 +59,7 @@ describe('元数据数据库操作 测试', function () {
     after(function () {
         console.log("close database pool!");
         KnexManager.destroy();
-        app.close();
+        webServer.stop();
     })
 
     it('增加数据表', function (done) {

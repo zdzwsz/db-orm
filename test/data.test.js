@@ -1,14 +1,15 @@
 var should = require('should');
-var app = require('../index');
+var webServer = require('../index');
 var supertest = require('supertest');
-var request = supertest(app);
+var request = supertest(webServer.server);
 var KnexManager = require("./../db/KnexManager");
+
 var test_add = { p0: { id: 1, name: "dog", age: "2" } };
 var test_delete = { p0: 1 };
 var test_get = { p0: 1 };
 var test_update = { p0: { id: 1, name: "egg", age: "21" } };
 
-describe.only('数据服务增删查改 测试', function () {
+describe('数据服务增删查改 测试', function () {
   var token = null;
 
   before(function () {
@@ -21,7 +22,7 @@ describe.only('数据服务增删查改 测试', function () {
 
   after(function (done) {
     console.log("测试完成,关闭API服务器");
-    app.close();
+    webServer.stop();
     KnexManager.destroy();
     done();
   });

@@ -8,12 +8,13 @@ var log4js = require('log4js');
 var logger = require('./log');
 var fs = require("fs");
 
+
 class WebServer {
     constructor(config) {
         this.app = express();
         this.config = config;
         this.server = null;
-        this.init();
+        var watcher = null;
     }
 
     validate() {
@@ -27,9 +28,9 @@ class WebServer {
             ok = false;
         } else {
             if (!fs.existsSync(this.config.modules)) {
-                try{
+                try {
                     fs.mkdirSync(this.config.modules)
-                }catch(e){
+                } catch (e) {
                     logger.error(e);
                     ok = false;
                 }
@@ -59,21 +60,26 @@ class WebServer {
         this.app.use('/meta', metaRouter.router);
         var dataRouter = new DataRouter(auth.intercept);
         this.app.use('/data', dataRouter.router);
+        
     }
 
     start() {
         if (this.validate()) {
+            this.init();
             this.server = this.app.listen(this.config.network.port);
             logger.info("server start at:" + this.config.network.port);
+            this.watcher = require("./watch/ModulesWatch");
         }
     }
 
     stop() {
-        this.server.stop();
-        this.server = null;
+        this.server.close();
+        this.watcher.close();
+        //this.watcher = null;
+        //this.server = null;
     }
 }
 
 var webServer = new WebServer(config);
 webServer.start();
-module.exports = webServer.server;
+module.exports = webServer;

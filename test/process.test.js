@@ -1,5 +1,5 @@
 
-var app = require('../index');
+var webServer = require('../index');
 var should = require('should');
 var KnexManager = require("./../db/KnexManager");
 var UUID = require('uuid');
@@ -18,7 +18,7 @@ describe('processManager.js 测试', function () {
   after(function () {
     console.log("测试完成,关闭API服务器");
     KnexManager.destroy();
-    app.close();
+    webServer.stop();
   });
 
   it('测试服务加载', function (done) {

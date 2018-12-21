@@ -16,11 +16,6 @@ class KnexManager {
     static getKnex() {
         if(KnexManager.instance == null){
             KnexManager.instance = new KnexManager();
-            KnexManager.status = true;
-        }
-        if(!KnexManager.status){
-            KnexManager.instance = new KnexManager();
-            KnexManager.status = true;
         }
         return KnexManager.instance.knex
     }
@@ -29,8 +24,7 @@ class KnexManager {
         if(KnexManager.instance != null){
             setTimeout(function(){
                 KnexManager.instance.knex.destroy();
-            },10000);
-            KnexManager.status = false;
+            },20000);
         }
     }
 }

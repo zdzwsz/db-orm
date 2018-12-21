@@ -1,7 +1,7 @@
 var should = require('should');
-var app = require('../index');
+var webServer = require('../index');
 var supertest = require('supertest');
-var request = supertest(app);
+var request = supertest(webServer.server);
 var KnexManager = require("./../db/KnexManager");
 var UUID = require('uuid');
 
@@ -19,7 +19,7 @@ describe('pet 业务服务测试', function () {
 
   after(function (done) {
     console.log("测试完成,关闭API服务器");
-    app.close();
+    webServer.stop();
     KnexManager.destroy();
     done();
   });

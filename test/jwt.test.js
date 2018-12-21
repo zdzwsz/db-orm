@@ -1,13 +1,13 @@
 var should = require('should');
-var app = require('../index');
+var webServer = require('../index');
 var supertest = require('supertest');
-var request = supertest(app);
+var request = supertest(webServer.server);
 
 describe('JWT 测试', function () {
 
   after(function () {
     console.log("测试完成,关闭API服务器");
-    app.close();
+    webServer.stop();
   });
 
   it('登陆成功取得token', function (done) {

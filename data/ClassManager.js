@@ -22,7 +22,8 @@ class ClassManager {
             require.cache[filepath] = null
             if (global.need == null) {
                 const need = function (m) {
-                    return require(__dirname + path.sep + "../shortcut/" + m)
+                    let filePath = path.resolve(__dirname ,"../shortcut/" , m);
+                    return require(filePath)
                 }
                 global.need = need;
             }
@@ -31,12 +32,11 @@ class ClassManager {
                 logger.error(filepath + " is not a service,use BasicService!");
                 serviceClass = BasicService;
             }
-
+            ClassManager.setCacheServiceClass(filepath, serviceClass);
         }
         else {
             serviceClass = BasicService;
         }
-        ClassManager.setCacheServiceClass(filepath, serviceClass);
         return serviceClass;
     }
 
