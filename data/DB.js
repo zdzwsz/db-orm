@@ -174,7 +174,7 @@ class DB {
     }
 
     loadTableMeta() {
-        let folder = require("../module") + path.sep;
+        let folder = require("../ModulesPath") + path.sep;
         let files = fs.readdirSync(folder)
         files.forEach(function (item) {
             let stat = fs.lstatSync(folder + item)

@@ -26,6 +26,16 @@
         { "name": "crete_data","type":"timestamp"},<br>
         { "name": "assets","type":"decimal","length":[8]},<br>
         { "name": "type","type":"string","length":2,"default": "0"}<br>
+        { "name": "resume","type:"table","relation":{<br>
+            "tableName":"test_resume",<br>
+            "primary::"id",<br>
+            "fields":[<br>
+                {"name":"id","type":"int"},<br>
+                {"name":"startTime","type":"dateTime"},<br>
+                {"name":"stopTime","type":"dateTime"},<br>
+                {"name":"detail","type":"string"}<br>
+            ]<br>
+        }}<br>
     ]<br>
 }<br>
 
@@ -45,12 +55,15 @@
 目前不支持修改表的名称
 
 <br>
-todo:
-1、数据更改热启动<br>
+todo:<br>
+1、数据更改热启动，over<br>
 2、多种数据类型保存测试与完善<br>
-   a、自增量<br>
-   b、日期格式处理<br>
+--a、自增量, int 转 增量<br>
+--b、日期格式处理<br>
+--c、string 转 int ，string 转 date（不做了，由业务判断）<br>
+
 3、子从表增删改查，meta和data。<br>
 4、启动进行表与json同步
 5、多级权限，改meta需要二次验证。<br>
+开发完成，即发布v0.1版本。
 

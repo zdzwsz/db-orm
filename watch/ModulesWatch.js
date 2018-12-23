@@ -2,13 +2,13 @@ var chokidar = require('chokidar')
 var watcher = null;
 var ready = false;
 var logger = require("../log");
-var watchPath = require("../module")
+var watchPath = require("../ModulesPath")
 var ProcessLoader = require("../data/ProcessLoader")
 
   function addFileListener(path) {
     if (ready) {
       logger.info('File', path, 'has been added')
-      if (path.indexOf(".service.js") > 0) {
+      if (path.indexOf(".service.js") == path.length - 11) {
         //增加服务
         ProcessLoader.reloadProcessFile(path);
       }
@@ -22,7 +22,7 @@ var ProcessLoader = require("../data/ProcessLoader")
 
   function fileChangeListener(path) {
     logger.info('File', path, 'has been changed')
-    if (path.indexOf(".service.js") > 0) {
+    if (path.indexOf(".service.js") == path.length - 11) {
       //修改服务
       ProcessLoader.reloadProcessFile(path);
     }
@@ -30,7 +30,7 @@ var ProcessLoader = require("../data/ProcessLoader")
 
   function fileRemovedListener(path) {
     logger.info('File', path, 'has been removed');
-    if (path.indexOf(".service.js") > 0) {
+    if (path.indexOf(".service.js") == path.length - 11) {
       //删除服务
       ProcessLoader.deleteProcessFile(path);
     }

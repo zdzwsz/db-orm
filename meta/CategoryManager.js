@@ -6,7 +6,7 @@ const logger = require("../log")
 var CategoryManager = {
     storePath: null,
     init: function () {
-        this.storePath = require("../module");
+        this.storePath = require("../ModulesPath");
     },
 
     service: function (service, action) {
@@ -23,7 +23,12 @@ var CategoryManager = {
     add: function (service) {
         var file = this.getFileName(service);
         try {
-            fs.mkdirSync(file);
+            if(fs.existsSync(file)){
+                return ResCode.error(ResCode.MetaAdd,"Service already exists");
+            }else{
+                fs.mkdirSync(file);
+            }
+            
             return ResCode.OK;
         } catch (e) {
             logger.error(e);

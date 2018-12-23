@@ -13,6 +13,11 @@ var processManager = {
     service(service, action, req, res) {
         let data = req.body;
         let Process = ProcessLoader.loadProcess(service, action);
+        if(Process == null){
+            logger.error("the " + service + " and " + action + " Service does not exist");
+            res.json({code:code["notexist"][0],message:code["notexist"][1]});
+            return;
+        }
         Reflect.apply(Process, null, this.getParameter(data, res,Process.length));
     },
 

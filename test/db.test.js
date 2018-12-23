@@ -4,53 +4,30 @@ var webServer = require('../index');
 var should = require('should');
 
 var table_new = {
-    "tableName":"test_sys_users",
-    "primary":"id",
-    "fields":[
-        { "name": "id", "type": "int" }, 
-        { "name": "name", "type": "string" ,"length" : 12,"notNullable":true}, 
-        { "name": "age", "type": "int" ,"default": 10},
-        { "name": "birthday","type":"dateTime"},
-        { "name": "salary","type":"float","length":[10,2]},
-        { "name": "crete_data","type":"timestamp"},
-        { "name": "assets","type":"decimal","length":[8]},
-        { "name": "type","type":"string","length":2,"default": "0"}
+    "tableName": "test_sys_users",
+    "primary": "id",
+    "fields": [
+        { "name": "id", "type": "int" },
+        { "name": "name", "type": "string", "length": 12, "notNullable": true },
+        { "name": "age", "type": "int", "default": 10 },
+        { "name": "birthday", "type": "dateTime" },
+        { "name": "salary", "type": "float", "length": [10, 2] },
+        { "name": "crete_data", "type": "timestamp" },
+        { "name": "assets", "type": "decimal", "length": [8] },
+        { "name": "type", "type": "string", "length": 2, "default": "0" }
     ]
 }
 
 var table_update = {
-    "r_primary":"name",
-    "add":[
-        { "name":"pic", "type":"string","length":255}
+    "r_primary": "name",
+    "add": [
+        { "name": "pic", "type": "string", "length": 255 }
     ],
-    "update":{
-       "age":{"name": "ages", "type": "string"}
+    "update": {
+        "age": { "name": "ages", "type": "string" }
     },
-    "delete":[
+    "delete": [
         "crete_data"
-    ]
-}
-
-var r_primary = {
-    "r_primary":"name"
-}
-
-var add_field = {
-    "add":[
-        { "name":"pic1", "type":"string","length":255},
-        { "name":"pic2", "type":"string","length":255}
-    ]
-}
-
-var update_field ={
-    "update":{
-        "age2":{"name": "ages1", "type": "string"}
-     }
-}
-
-var delete_field ={
-    "delete":[
-        "crete_data","assets"
     ]
 }
 
@@ -102,6 +79,12 @@ describe('元数据数据库操作 测试', function () {
     })
 
     it('只是增加数据字段', function (done) {
+        var add_field = {
+            "add": [
+                { "name": "pic1", "type": "string", "length": 255 },
+                { "name": "pic2", "type": "string", "length": 255 }
+            ]
+        }
         this.timeout(5000);
         var table = TableMeta.load(table_new);
         table.update(add_field, function (e) {
@@ -114,6 +97,11 @@ describe('元数据数据库操作 测试', function () {
     })
 
     it('只是删除数据字段', function (done) {
+        var delete_field = {
+            "delete": [
+                "crete_data", "assets"
+            ]
+        }
         this.timeout(5000);
         var table = TableMeta.load(table_new);
         table.update(delete_field, function (e) {
@@ -125,20 +113,51 @@ describe('元数据数据库操作 测试', function () {
         })
     })
 
-    it('只是更改主键字段', function (done) {
+    it('将id更改为自动自增类型,需要删除主键', function (done) {
+        var update_field = {
+            "r_primary":"_delete_",//delete 代表删除主键
+            "update": {
+                "id": { "name": "id", "type": "increment" }
+            }
+        }
         this.timeout(5000);
         var table = TableMeta.load(table_new);
-        table.update(r_primary, function (e) {
+        table.update(update_field, function (e) {
             should.not.exist(e);
-            json = table.json;
-            table_new = json;
-            json.should.have.property('primary', 'name');
             done(e);
         })
     })
 
+    it('只是更改主键字段，如果有自增量，需要更改类型', function (done) {
+        var r_primary = {
+            "r_primary": "name"
+        }
+        //如果是存在自增量的字段，更改主键，需要更改自增量的类型。
+        var update_field = {
+            "update": {
+                "id": { "name": "id", "type": "int"}
+            }
+        }
+        this.timeout(5000);
+        var table = TableMeta.load(table_new);
+        table.update(update_field,function(e){
+            table.update(r_primary, function (e) {
+                should.not.exist(e);
+                json = table.json;
+                table_new = json;
+                json.should.have.property('primary', 'name');
+                done(e);
+            })
+        })
+    })
 
-   it('只是修改原字段名称和类型', function (done) {
+
+    it('只是修改原字段名称和类型', function (done) {
+        var update_field = {
+            "update": {
+                "age": { "name": "age1", "type": "string" }
+            }
+        }
         this.timeout(5000);
         var table = TableMeta.load(table_new);
         table.update(update_field, function (e) {

@@ -8,12 +8,21 @@ class BasicService {
         this.tableName = tableName;
         this.master = master;
     }
-
+    //新增返回值是主键
     add(dataJson, callback) {
-        knex(this.tableName).insert(dataJson)
+        if (dataJson == null || typeof (dataJson) == "undefined") {
+            if (callback) {
+                callback(new Error("Parameters cannot be null!"));
+            }
+            return;
+        }
+        knex(this.tableName).returning(this.master).insert(dataJson)
             .then(function (data) {
                 if (callback) {
-                    callback();
+                    if (data && data.length && data.length > 0) {
+                        data = data[0];
+                    }
+                    callback(null, data);
                 }
             }).catch(function (e) {
                 logger.error(e);
@@ -22,13 +31,20 @@ class BasicService {
                 }
             });
     }
-
+    //返回值是成功的条数，一般是1
     update(dataJson, callback) {
+        if (dataJson == null || typeof (dataJson) == "undefined") {
+            if (callback) {
+                callback(new Error("Parameters cannot be null!"));
+            }
+            return;
+        }
         let value = dataJson[this.master];
         knex(this.tableName).where(this.master, value).update(dataJson)
-            .then(function () {
+            .then(function (data) {
+                //console.log(data);
                 if (callback) {
-                    callback();
+                    callback(null, data);
                 }
             }).catch(function (e) {
                 logger.error(e);
@@ -39,10 +55,17 @@ class BasicService {
     }
 
     delete(id, callback) {
-        knex(this.tableName).where(this.master, id).del()
-            .then(function () {
+        let parame = this._getParameter(id);
+        if (parame == null) {
+            if (callback) {
+                callback(new Error("Parameters cannot be null!"));
+                return;
+            }
+        }
+        knex(this.tableName).where(parame).del()
+            .then(function (data) {
                 if (callback) {
-                    callback();
+                    callback(null, data);
                 }
             }).catch(function (e) {
                 logger.error(e);
@@ -52,15 +75,37 @@ class BasicService {
             });
     }
 
+    _getParameter(id) {
+        if (id == null || typeof (id) == "undefined") {
+            return null;
+        }
+
+        let parame = {};
+        if (typeof (id) != "object") {
+            parame[this.master] = id
+        } else {
+            parame = id;
+        }
+        return parame
+    }
+
     get(id, callback) {
-        knex(this.tableName).where(this.master, id)
+        let parame = this._getParameter(id);
+        if (parame == null) {
+            if (callback) {
+                callback(new Error("Parameters cannot be null!"));
+            }
+            return;
+        }
+        //console.log(parame);
+        knex(this.tableName).where(parame)
             .then(function (value) {
                 if (callback) {
-                    let returnValue = null;
+                    //console.log(value);
                     if (value && value.length && value.length > 0) {
-                        returnValue = value[0];
+                        value = value[0];
                     }
-                    callback(null, returnValue);
+                    callback(null, value);
                 }
             }).catch(function (e) {
                 logger.error(e);
@@ -97,9 +142,9 @@ class BasicService {
         knex.transaction(function (trx) {
             return Promise.map(sqls, function (sql, i) {
                 if (argsLength == 3 || (argsLength == 2 && Array.isArray(parameter))) {
-                    if(Array.isArray(parameters[i])){
+                    if (Array.isArray(parameters[i])) {
                         return trx.raw(sql, parameters[i]);
-                    }else{
+                    } else {
                         return trx.raw(sql);
                     }
                 }
@@ -123,4 +168,3 @@ class BasicService {
 }
 
 module.exports = BasicService
-

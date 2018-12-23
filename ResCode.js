@@ -13,6 +13,8 @@ var ResCode = {
 
     DataValidateException:"021",
 
+    ServiceException:"022",
+
     error:function(type,e){
           if(Array.isArray(type)  && typeof(e) == 'undefined'){
             return {'code':type[0],'message':type[1]};

@@ -20,6 +20,14 @@ class KnexManager {
         return KnexManager.instance.knex
     }
 
+    static getType(){
+        return config.database.dbtype;
+    }
+
+    static isType(type){
+        return config.database.dbtype ===type;
+    }
+
     static destroy(){
         if(KnexManager.instance != null){
             setTimeout(function(){

@@ -19,7 +19,7 @@ class DataManager extends EventEmitter {
     }
 
     init() {
-        this.storePath = require("../module");
+        this.storePath = require("../ModulesPath");
     }
 
     service(service, name, action, req) {
@@ -67,7 +67,15 @@ class DataManager extends EventEmitter {
             let ServiceClass = this.getServiceClass(service, name);
             var service = Reflect.construct(ServiceClass, [metaJson.tableName, metaJson.primary]);
             let _this = this;
-            Reflect.apply(service[actionName], service, this.getParameter(data,_this));
+            try{
+                let func = service[actionName];
+                if(func == null){
+                    throw new Error("Service does not exist");
+                }
+                Reflect.apply(func, service, this.getParameter(data,_this));
+            }catch(e){
+                this.emit(_this.eventName, ResCode.error(ResCode.ServiceException, e.message))
+            }
         } else {
             this.emit(_this.eventName, ResCode.error(ResCode.DataValidateException, validateResult.message))
         }

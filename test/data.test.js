@@ -4,10 +4,10 @@ var supertest = require('supertest');
 var request = supertest(webServer.server);
 var KnexManager = require("./../db/KnexManager");
 
-var test_add = { p0: { id: 1, name: "dog", age: "2" } };
-var test_delete = { p0: 1 };
-var test_get = { p0: 1 };
-var test_update = { p0: { id: 1, name: "egg", age: "21" } };
+var test_add = { id: 1, name: "dog", age: "2" };
+var test_delete = { id: 1 };
+var test_get = { id: 1 };
+var test_update = { id: 1, name: "egg", age: "21" };
 
 describe('数据服务增删查改 测试', function () {
   var token = null;
@@ -51,6 +51,19 @@ describe('数据服务增删查改 测试', function () {
       });
   });
 
+  it('查询数据参数测试，使用 1', function (done) {
+    let get_paramter = {p0:1};
+    request.post('/data/petshop/pet/get')
+      .set('x-access-token', token)
+      .send(get_paramter)
+      .expect('Content-Type', /json/)
+      .end(function (err, res) {
+        should.not.exist(err);
+        res.body.should.have.property('code', '000');
+        done(err);
+      });
+  });
+
   it('修改一条数据记录', function (done) {
     request.post('/data/petshop/pet/update')
       .set('x-access-token', token)
@@ -58,6 +71,7 @@ describe('数据服务增删查改 测试', function () {
       .expect('Content-Type', /json/)
       .end(function (err, res) {
         should.not.exist(err);
+        console.log(res.body);
         res.body.should.have.property('code', '000');
         done(err);
       });
@@ -78,7 +92,7 @@ describe('数据服务增删查改 测试', function () {
   it('测试定义服务 /data/petshop/pet/searchName', function (done) {
     request.post('/data/petshop/pet/searchName')
       .set('x-access-token', token)
-      .send({p0:'wsz'})
+      .send({ p0: 'wsz' })
       .expect('Content-Type', /json/)
       .end(function (err, res) {
         should.not.exist(err);
@@ -95,6 +109,7 @@ describe('数据服务增删查改 测试', function () {
       .expect('Content-Type', /json/)
       .end(function (err, res) {
         should.not.exist(err);
+        console.log(res.body);
         res.body.should.have.property('code', '000');
         done(err);
       });

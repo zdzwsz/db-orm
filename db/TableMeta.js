@@ -45,6 +45,7 @@ class TableMeta {
         logger.debug("op field is :" + field.name);
         var column = null;
         if (field.type == "increment") {
+            //mysql 的自增类型，必须是主键。
             column = table.increments(field.name);
         }
         else if (field.type == "int" || field.type == "integer") {
@@ -82,7 +83,8 @@ class TableMeta {
         }
         if (field.notNullable) {
             column.notNullable()
-        } else {
+        } 
+        if (field.nullable) {
             column.nullable()
         }
         return column;
@@ -90,8 +92,26 @@ class TableMeta {
 
     _createPrimary(table) {
         if (this.primary) {
-            table.primary(this.primary)
+            let column = this._getColumn(this.primary)
+            if (column != null) {
+                if(column["type"] !="increment"){//mysql 在increment下，不能设置主键
+                    table.primary(this.primary)
+                }
+            } else {
+                logger.error("primary setup error:" + this.primary);
+                throw new Error("primary setup error:" + this.primary);
+            }
         }
+    }
+
+    _getColumn(name) {
+        for (let i = 0;i<this.fields.length;i++) {
+            let column = this.fields[i];
+            if (column["name"] === name) {
+                return column;
+            }
+        }
+        return null;
     }
 
     create(callback) {
@@ -136,6 +156,7 @@ class TableMeta {
         if (typeof (json) == "object") {
             //克隆 json
             let cloneJson = JSON.parse(JSON.stringify(this.json));
+            //console.log(cloneJson);
             var _this = this
             //可能什么都没有干
             knex.schema.table(_this.tableName, function (table) {
@@ -150,7 +171,7 @@ class TableMeta {
                     table.dropColumns(json.delete);
                     for (let i = 0; i < json.delete.length; i++) {
                         for (let j = 0; j < cloneJson.fields.length; j++) {
-                            if (cloneJson.fields[j].name = json.delete[i]) {
+                            if (cloneJson.fields[j].name == json.delete[i]) {
                                 cloneJson.fields.splice(j, 1);
                                 break;
                             }
@@ -172,16 +193,18 @@ class TableMeta {
                                     break;
                                 }
                             }
-                            if(!field_exist){
-                                logger.warn("modify field error:" + key +" not exist ,please check update json!");
+                            if (!field_exist) {
+                                logger.warn("modify field error:" + key + " not exist ,please check update json!");
                             }
                         }
                     }
                 }
                 if (json.r_primary) {
                     table.dropPrimary();
-                    table.primary(json.r_primary);
-                    cloneJson.primary = json.r_primary;
+                    if(json.r_primary != "_delete_"){
+                        table.primary(json.r_primary);
+                        cloneJson.primary = json.r_primary;
+                    }
                 }
             }).then(function () {
                 _this.json = cloneJson;

@@ -17,7 +17,7 @@ class MetaManager extends EventEmitter {
     }
 
     init() {
-        this.storePath = require("../module");
+        this.storePath = require("../ModulesPath");
     }
 
     service(service, name, action, req) {

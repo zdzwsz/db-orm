@@ -1,6 +1,7 @@
 const DataManager = require('../data/DataManager');
 const processManager = require('../data/ProcessManager');
 const logger = require("../log")
+require("./Date");
 var Router = require('express').Router;
 
 class DataRoute{
@@ -13,7 +14,7 @@ class DataRoute{
     }
 
     init(){
-       this.filter();
+       //this.filter();
        this.postData();
        this.postLogic();
     }
