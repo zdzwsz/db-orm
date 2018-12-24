@@ -83,30 +83,30 @@ class TableMeta {
         }
         if (field.notNullable) {
             column.notNullable()
-        } 
+        }
         if (field.nullable) {
             column.nullable()
         }
         return column;
     }
 
-    _createPrimary(table) {
-        if (this.primary) {
-            let column = this._getColumn(this.primary)
+    _createPrimary(table, tableJson) {
+        if (tableJson.primary) {
+            let column = this._getColumn(tableJson, tableJson.primary)
             if (column != null) {
-                if(column["type"] !="increment"){//mysql 在increment下，不能设置主键
-                    table.primary(this.primary)
+                if (column["type"] != "increment") {//mysql 在increment下，不能设置主键
+                    table.primary(tableJson.primary)
                 }
             } else {
-                logger.error("primary setup error:" + this.primary);
-                throw new Error("primary setup error:" + this.primary);
+                logger.error("primary setup error:" + tableJson.primary);
+                throw new Error("primary setup error:" + tableJson.primary);
             }
         }
     }
 
-    _getColumn(name) {
-        for (let i = 0;i<this.fields.length;i++) {
-            let column = this.fields[i];
+    _getColumn(tableJson, name) {
+        for (let i = 0; i < tableJson.fields.length; i++) {
+            let column = tableJson.fields[i];
             if (column["name"] === name) {
                 return column;
             }
@@ -114,42 +114,102 @@ class TableMeta {
         return null;
     }
 
+    getMetaTables() {
+        let tables = [];
+        let mainTable = {};
+        mainTable.tableName = this.tableName;
+        mainTable.primary = this.primary;
+        tables.push(mainTable);
+        mainTable.fields = [];
+        let json = this.json;
+        let primary = this._getColumn(json, mainTable.primary);
+        for (let i = 0; i < json.fields.length; i++) {
+            if (json.fields[i].type == "table") {
+                let subTable = json.fields[i].relation;
+                let foreign_key = this.cloneColumn(primary);
+                foreign_key.name = json.fields[i].name;
+                if (foreign_key.type == "increment") {
+                    foreign_key.type = "integer"
+                }
+                subTable.fields.push(foreign_key);
+                tables.push(subTable);
+            } else {
+                mainTable.fields.push(json.fields[i]);
+            }
+        }
+        return tables;
+    }
+
+    hasTable(i, tables, _this, callback) {
+        knex.schema.hasTable(tables[i].tableName).then(function (exists) {
+            if (!exists) {
+                if (i < tables.length - 1) {
+                    i++;
+                    _this.hasTable(i, tables, _this, callback)
+                } else {
+                    callback()
+                }
+            } else {
+                throw new Error("The created table already exists:" + tables[i]);
+            }
+        })
+    }
+
+    cloneColumn(source) {
+        return JSON.parse(JSON.stringify(source));
+    }
+
     create(callback) {
         var _this = this
-        knex.schema.hasTable(_this.tableName).then(function (exists) {
-            if (!exists) {
-                logger.debug("create table:" + _this.tableName)
-                knex.schema.createTable(_this.tableName, function (table) {
-                    for (var i = 0; i < _this.fields.length; i++) {
-                        var field = _this.fields[i]
-                        _this._createColumn(table, field)
-                    }
-                    _this._createPrimary(table)
-                }).then(function () {
-                    if (callback) {
-                        callback()
-                    }
-                }).catch(function (e) {
-                    if (callback) {
-                        callback(e)
-                    }
-                });
+        let tableJsons = this.getMetaTables();
+        //console.log(tableJsons);
+        this.hasTable(0, tableJsons, _this, function () {
+            _this.createTable(0, tableJsons, _this, callback);
+        });
+    }
+
+    createTable(j, tableJsons, _this, callback) {
+        knex.schema.createTable(tableJsons[j].tableName, function (table) {
+            for (var i = 0; i < tableJsons[j].fields.length; i++) {
+                var field = tableJsons[j].fields[i];
+                _this._createColumn(table, field);
+            }
+            _this._createPrimary(table, tableJsons[j]);
+        }).then(function () {
+            if (j < tableJsons.length - 1) {
+                j++;
+                _this.createTable(j, tableJsons, _this, callback)
             } else {
                 if (callback) {
-                    callback("table:" + _this.tableName + " is Exists")
+                    callback();
+                }
+            }
+        }).catch(function (e) {
+            if (callback) {
+                callback(e);
+            }
+        });
+    }
+
+    delete(callback) {
+        var _this = this
+        let tableJsons = this.getMetaTables();
+        _this.deleteTable(0,tableJsons,_this,callback);
+    }
+
+    deleteTable(i, tableJsons, _this, callback) {
+        knex.schema.dropTableIfExists(tableJsons[i].tableName).then(function () {
+            if (i < tableJsons.length - 1) {
+                i++;
+                _this.deleteTable(i, tableJsons, _this, callback)
+            } else {
+                if (callback) {
+                    callback()
                 }
             }
         })
     }
 
-    delete(callback) {
-        var _this = this
-        knex.schema.dropTableIfExists(_this.tableName).then(function () {
-            if (callback) {
-                callback()
-            }
-        })
-    }
 
     update(json, callback) {
         //先增加字段，再删除字段，然后修改字段，然后改主键。无法保证事务完整。
@@ -201,7 +261,7 @@ class TableMeta {
                 }
                 if (json.r_primary) {
                     table.dropPrimary();
-                    if(json.r_primary != "_delete_"){
+                    if (json.r_primary != "_delete_") {
                         table.primary(json.r_primary);
                         cloneJson.primary = json.r_primary;
                     }
@@ -249,7 +309,7 @@ class TableMeta {
     }
 
 }
-TableMeta.FIELDTPYE = ["increment", "string", "integer", "decimal", "float", "date", "dateTime", "time", "bigInteger", "timestamp", "binary"]
+TableMeta.FIELDTPYE = ["increment", "string", "integer", "decimal", "float", "date", "dateTime", "time", "bigInteger", "timestamp", "binary", "guid"]
 TableMeta.COUSTRAINTT = ["primary", "unique", "foreign", "notNullable"]
 TableMeta.DEFAULTVALUE = []
 

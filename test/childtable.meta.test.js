@@ -22,6 +22,17 @@ var table_new = {
                     { "name": "detail", "type": "string" }
                 ]
             }
+        },
+        {
+            "name": "family", "type": "table", "relation": {
+                "tableName": "test_family",
+                "primary": "id",
+                "fields": [
+                    { "name": "id", "type": "int" },
+                    { "name": "name", "type": "string" },
+                    { "name": "detail", "type": "string" }
+                ]
+            }
         }
     ]
 }
@@ -60,7 +71,7 @@ var data_add = {
 
 }
 
-describe('子从表元数据数据库操作 测试', function () {
+describe.only('子从表元数据数据库操作 测试', function () {
 
     after(function () {
         console.log("close database pool!");
@@ -77,7 +88,7 @@ describe('子从表元数据数据库操作 测试', function () {
         })
     })
 
-    it('修改数据表(all)', function (done) {
+    it.skip('修改数据表(all)', function (done) {
         this.timeout(8000);
         var table = TableMeta.load(table_new);
         table.update(table_update, function (e) {

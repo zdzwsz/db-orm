@@ -1,6 +1,6 @@
 
 var should = require('should');
-var KnexManager = require("./../db/KnexManager");
+var KnexManager = require("../db/KnexManager");
 var webServer = require('../index');
 var supertest = require('supertest');
 var request = supertest(webServer.server);

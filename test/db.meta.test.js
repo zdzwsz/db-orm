@@ -1,5 +1,5 @@
-var KnexManager = require("./../db/KnexManager");
-var TableMeta = require("./../db/TableMeta")
+var KnexManager = require("../db/KnexManager");
+var TableMeta = require("../db/TableMeta")
 var webServer = require('../index');
 var should = require('should');
 
@@ -31,7 +31,7 @@ var table_update = {
     ]
 }
 
-describe('元数据数据库操作 测试', function () {
+describe.only('元数据数据库操作 测试', function () {
 
     after(function () {
         console.log("close database pool!");
