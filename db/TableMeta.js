@@ -122,11 +122,11 @@ class TableMeta {
         tables.push(mainTable);
         mainTable.fields = [];
         let json = this.json;
-        console.log(json);
+        //console.log(json);
         let primary = this._getColumn(json, mainTable.primary);
         for (let i = 0; i < json.fields.length; i++) {
             if (json.fields[i].type == "table") {
-                let subTable = json.fields[i].relation;
+                let subTable = JSON.parse(JSON.stringify(json.fields[i].relation));
                 //console.log(subTable);
                 //console.log("======");
                 let foreign_key = this.cloneColumn(primary);
@@ -146,21 +146,6 @@ class TableMeta {
         return tables;
     }
 
-    hasTable(i, tables, _this, callback) {
-        knex.schema.hasTable(tables[i].tableName).then(function (exists) {
-            if (!exists) {
-                if (i < tables.length - 1) {
-                    i++;
-                    _this.hasTable(i, tables, _this, callback)
-                } else {
-                    callback()
-                }
-            } else {
-                throw new Error("The created table already exists:" + tables[i]);
-            }
-        })
-    }
-
     cloneColumn(source) {
         return JSON.parse(JSON.stringify(source));
     }
@@ -169,12 +154,39 @@ class TableMeta {
         var _this = this
         let tableJsons = this.getMetaTables();
         //console.log(tableJsons);
-        this.hasTable(0, tableJsons, _this, function () {
-            _this.createTable(0, tableJsons, _this, callback);
-        });
+        this.createTable(tableJsons, _this, callback);
     }
 
-    createTable(j, tableJsons, _this, callback) {
+    createTable(tableJsons, _this, callback) {
+        if(tableJsons.length==0){
+            if(callback){
+                callback();
+            }
+        }else{
+            this.hasTable(0, tableJsons, _this, callback);
+        }
+        
+    }
+
+    hasTable(i, tables, _this, callback) {
+        knex.schema.hasTable(tables[i].tableName).then(function (exists) {
+            if (!exists) {
+                _this.createTableByJson(i, tables, _this, callback);
+            } else {
+                logger.warn("The created table already exists:" + tables[i].tableName);
+                if (i < tables.length - 1) {
+                    i++;
+                    _this.hasTable(i, tables, _this, callback)
+                } else {
+                    if (callback) {
+                        callback();
+                    }
+                }
+            }
+        })
+    }
+
+    createTableByJson(j, tableJsons, _this, callback) {
         knex.schema.createTable(tableJsons[j].tableName, function (table) {
             for (var i = 0; i < tableJsons[j].fields.length; i++) {
                 var field = tableJsons[j].fields[i];
@@ -184,7 +196,7 @@ class TableMeta {
         }).then(function () {
             if (j < tableJsons.length - 1) {
                 j++;
-                _this.createTable(j, tableJsons, _this, callback)
+                _this.hasTable(j, tableJsons, _this, callback)
             } else {
                 if (callback) {
                     callback();
@@ -200,11 +212,21 @@ class TableMeta {
     delete(callback) {
         var _this = this
         let tableJsons = this.getMetaTables();
-        _this.deleteTable(0, tableJsons, _this, callback);
+        this.deleteTable(0, tableJsons, _this, callback);
     }
 
     deleteTable(i, tableJsons, _this, callback) {
-        knex.schema.dropTableIfExists(tableJsons[i].tableName).then(function () {
+        if(tableJsons.length == 0){
+            if(callback){
+                callback();
+            }
+            return;
+        }
+        let tableName = tableJsons[i].tableName;
+        // if (typeof (tableName) != "string") {
+        //     tableName = tableName.tableName;
+        // }
+        knex.schema.dropTableIfExists(tableName).then(function () {
             if (i < tableJsons.length - 1) {
                 i++;
                 _this.deleteTable(i, tableJsons, _this, callback)
@@ -306,7 +328,6 @@ class TableMeta {
                         i++;
                         _this.updateTable(i, tablejsons, sourceTableJons, jsons, _this, callback);
                     } else {
-                        _this.updateMerge(sourceTableJons);
                         callback()
                     }
                 })
@@ -320,7 +341,6 @@ class TableMeta {
                     i++;
                     _this.updateTable(i, tablejsons, sourceTableJons, jsons, _this, callback);
                 } else {
-                    _this.updateMerge(sourceTableJons);
                     callback()
                 }
             }
@@ -335,15 +355,34 @@ class TableMeta {
         let tableJsons = this.getMetaTables();
         if (typeof (json) == "object") {
             var _this = this
-            let jsons = this.updateJson(json, tableJsons)
-            let cloneTableJsons = JSON.parse(JSON.stringify(tableJsons));
-            this.updateTable(0, cloneTableJsons, tableJsons, jsons, _this, callback);
+            let jsons = this.updateJson(json, tableJsons);
+            let addTable = jsons.addTable;
+            let delTable = jsons.delTable;
+            //console.log(jsons.modify);
+            this.createTable(addTable, _this, function (e) {
+                if (e == null) {
+                    _this.deleteTable(0, delTable, _this, function (e) {
+                        let modify = jsons.modify;
+                        for(let n= 0;n<modify.length;n++){
+                            if(modify[n].isdel == true){
+                                modify.splice(n,1);
+                                tableJsons.splice(n,1);
+                            }
+                        }
+                        let cloneTableJsons = JSON.parse(JSON.stringify(tableJsons));
+                        _this.updateTable(0, cloneTableJsons, tableJsons, jsons.modify, _this, function () {
+                            _this.updateMerge(tableJsons, addTable, delTable);
+                            callback()
+                        });
+                    })
+                }
+            });
         } else {
             logger.error("Need to submit update table information!")
         }
     }
     //没有考虑增表和删表
-    updateMerge(tableJsons) {
+    updateMerge(tableJsons, addTable, delTable) {
         let newJson = tableJsons[0];
         for (let i = 1; i < tableJsons.length; i++) {
             let subTable = { "name": tableJsons[i].foreign, "type": "table", "relation": tableJsons[i] };
@@ -352,12 +391,29 @@ class TableMeta {
         }
         this.json = newJson;
         this.primary = newJson.primary;
+        if (addTable) {
+            for (let i = 0; i < addTable.length; i++) {
+                let subTable = { "name": addTable[i].foreign, "type": "table", "relation": addTable[i] };
+                newJson.fields.push(subTable);
+            }
+        }
+        // if (delTable) {
+        //     for (let i = 0; i < delTable.length; i++) {
+        //         for (let j = 0; j < newJson.fields.length; j++)
+        //             if (newJson.fields[j].name == delTable[i].foreign) {
+        //                 newJson.fields.splice(j, 1);
+        //             }
+        //     }
+        // }
     }
 
     updateJson(json, tableJsons) {
         let jsonMap = new Map();
+        let addTable = [];
+        let delTable = []
+        let returnValue = { "addTable": addTable, "delTable": delTable, "modify": null }
         for (let i = 0; i < tableJsons.length; i++) {
-            let sjson = { "add": [], "update": {}, "delete": [], "r_primary": null };
+            let sjson = { "add": [], "update": {}, "delete": [], "r_primary": null,"tableName":tableJsons[i].tableName,"isdel":false };
             if (tableJsons[i].foreign) {
                 jsonMap.set(tableJsons[i].foreign, sjson);
             } else {
@@ -367,24 +423,44 @@ class TableMeta {
         if (json.add) {
             for (let i1 = 0; i1 < json.add.length; i1++) {
                 let field = json.add[i1];
-                let name = field.name;
-                let names = name.split(".");
-                if (names.length > 1) {
-                    field.name = names[1];
-                    jsonMap.get(names[0]).add.push(field);
+                if (field.type == "table") {
+                    let primary = this._getColumn(this.json, this.primary);
+                    let foreign_key = this.cloneColumn(primary);
+                    foreign_key.name = field.name;
+                    if (foreign_key.type == "increment") {
+                        foreign_key.type = "integer"
+                    }
+                    field.relation.fields.push(foreign_key);
+                    field.relation.foreign = field.name;
+                    addTable.push(field.relation);
                 } else {
-                    jsonMap.get("main").add.push(field);
+                    let name = field.name;
+                    let names = name.split(".");
+                    if (names.length > 1) {
+                        field.name = names[1];
+                        jsonMap.get(names[0]).add.push(field);
+                    } else {
+                        jsonMap.get("main").add.push(field);
+                    }
                 }
             }
         }
         if (json.delete) {
             for (let i1 = 0; i1 < json.delete.length; i1++) {
-                let field = json.delete[i1];
-                let names = field.split(".");
+                let fieldName = json.delete[i1];
+                let names = fieldName.split(".");
                 if (names.length > 1) {
                     jsonMap.get(names[0]).delete.push(names[1]);
                 } else {
-                    jsonMap.get("main").delete.push(field);
+                    let subtable = jsonMap.get(fieldName);
+                    //console.log(subtable);
+                    if (subtable == null) {
+                        jsonMap.get("main").delete.push(fieldName);
+                    }
+                    else {
+                        delTable.push({"tableName":subtable.tableName,"foreign":fieldName});
+                        subtable.isdel = true;
+                    }
                 }
             }
         }
@@ -418,7 +494,8 @@ class TableMeta {
                 }
             }
         }
-        return [...jsonMap.values()];
+        returnValue.modify = [...jsonMap.values()];
+        return returnValue;
     }
 
 }

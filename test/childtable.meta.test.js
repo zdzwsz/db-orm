@@ -19,7 +19,8 @@ var table_new = {
                     { "name": "id", "type": "int" },
                     { "name": "startTime", "type": "dateTime" },
                     { "name": "stopTime", "type": "dateTime" },
-                    { "name": "detail", "type": "string" }
+                    { "name": "detail", "type": "string" },
+                    { "name": "old", "type": "int" }
                 ]
             }
         },
@@ -30,8 +31,7 @@ var table_new = {
                 "fields": [
                     { "name": "id", "type": "int" },
                     { "name": "name", "type": "string" },
-                    { "name": "detail", "type": "string" },
-                    { "name": "old", "type": "int" }
+                    { "name": "detail", "type": "string" }
                 ]
             }
         }
@@ -41,14 +41,23 @@ var table_new = {
 var table_update = {
     "add": [
         { "name": "resume.position", "type": "string" },
-        { "name": "family.position", "type": "string" },
-        { "name": "position", "type": "string" }
+        { "name": "position", "type": "string" },
+        {
+            "name": "company", "type": "table", "relation": {
+                "tableName": "test_company",
+                "primary": "id",
+                "fields": [
+                    { "name": "id", "type": "int" },
+                    { "name": "name", "type": "string" }
+                ]
+            }
+        }
     ],
     "update": {
         "resume.detail": { "name": "detail", "type": "string", "length": 255 }
     },
     "delete": [
-        "family.old"
+        "family","resume.old"
     ]
 }
 
@@ -111,9 +120,8 @@ describe.only('子从表元数据数据库操作 测试', function () {
         table.update(table_update, function (e) {
             should.not.exist(e);
             json = table.json;
-            //console.log(json);
-            console.log(json.fields[5].relation);
-            console.log(json.fields[6].relation);
+            table_new = json;
+            console.log(json);
             done(e);
         })
     })

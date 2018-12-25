@@ -31,7 +31,7 @@ var table_update = {
     ]
 }
 
-describe('元数据数据库操作 测试', function () {
+describe.only('元数据数据库操作 测试', function () {
 
     after(function () {
         console.log("close database pool!");
@@ -70,7 +70,7 @@ describe('元数据数据库操作 测试', function () {
         })
     })
 
-    it.skip('再次增加数据表', function (done) {
+    it('再次增加数据表', function (done) {
         this.timeout(4000);
         var table = TableMeta.load(table_new);
         table.create(function (e) {
@@ -79,7 +79,7 @@ describe('元数据数据库操作 测试', function () {
         })
     })
 
-    it.skip('只是增加数据字段', function (done) {
+    it('只是增加数据字段', function (done) {
         var add_field = {
             "add": [
                 { "name": "pic1", "type": "string", "length": 255 },
@@ -97,7 +97,7 @@ describe('元数据数据库操作 测试', function () {
         })
     })
 
-    it.skip('只是删除数据字段', function (done) {
+    it('只是删除数据字段', function (done) {
         var delete_field = {
             "delete": [
                 "crete_data", "assets"
@@ -114,7 +114,7 @@ describe('元数据数据库操作 测试', function () {
         })
     })
 
-    it.skip('将id更改为自动自增类型,需要删除主键', function (done) {
+    it('将id更改为自动自增类型,需要删除主键', function (done) {
         var update_field = {
             "r_primary":"_delete_",//delete 代表删除主键
             "update": {
@@ -129,7 +129,7 @@ describe('元数据数据库操作 测试', function () {
         })
     })
 
-    it.skip('只是更改主键字段，如果有自增量，需要更改类型', function (done) {
+    it('只是更改主键字段，如果有自增量，需要更改类型', function (done) {
         var r_primary = {
             "r_primary": "name"
         }
@@ -153,7 +153,7 @@ describe('元数据数据库操作 测试', function () {
     })
 
 
-    it.skip('只是修改原字段名称和类型', function (done) {
+    it('只是修改原字段名称和类型', function (done) {
         var update_field = {
             "update": {
                 "age": { "name": "age1", "type": "string" }
@@ -167,7 +167,7 @@ describe('元数据数据库操作 测试', function () {
         })
     })
 
-    it.skip('最后删除数据表', function (done) {
+    it('最后删除数据表', function (done) {
         this.timeout(5000);
         var table = TableMeta.load(table_new);
         table.delete(function (e) {
