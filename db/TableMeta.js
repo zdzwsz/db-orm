@@ -122,21 +122,27 @@ class TableMeta {
         tables.push(mainTable);
         mainTable.fields = [];
         let json = this.json;
+        console.log(json);
         let primary = this._getColumn(json, mainTable.primary);
         for (let i = 0; i < json.fields.length; i++) {
             if (json.fields[i].type == "table") {
                 let subTable = json.fields[i].relation;
+                //console.log(subTable);
+                //console.log("======");
                 let foreign_key = this.cloneColumn(primary);
                 foreign_key.name = json.fields[i].name;
                 if (foreign_key.type == "increment") {
                     foreign_key.type = "integer"
                 }
                 subTable.fields.push(foreign_key);
+                subTable.foreign = json.fields[i].name;
                 tables.push(subTable);
+                //console.log(subTable);
             } else {
                 mainTable.fields.push(json.fields[i]);
             }
         }
+
         return tables;
     }
 
@@ -194,7 +200,7 @@ class TableMeta {
     delete(callback) {
         var _this = this
         let tableJsons = this.getMetaTables();
-        _this.deleteTable(0,tableJsons,_this,callback);
+        _this.deleteTable(0, tableJsons, _this, callback);
     }
 
     deleteTable(i, tableJsons, _this, callback) {
@@ -210,102 +216,209 @@ class TableMeta {
         })
     }
 
-
-    update(json, callback) {
-        //先增加字段，再删除字段，然后修改字段，然后改主键。无法保证事务完整。
-        if (typeof (json) == "object") {
-            //克隆 json
-            let cloneJson = JSON.parse(JSON.stringify(this.json));
-            //console.log(cloneJson);
-            var _this = this
-            //可能什么都没有干
-            knex.schema.table(_this.tableName, function (table) {
-                if (json.add) {
-                    for (let i = 0; i < json.add.length; i++) {
-                        var field = json.add[i]
-                        _this._createColumn(table, field)
-                        cloneJson.fields.push(field);
+    updateTable2AddAndDeleteAndMasterKey(i, tablejsons, jsons, _this) {
+        let cloneJson = tablejsons[i];
+        let json = jsons[i];
+        let raw = knex.schema.table(cloneJson.tableName, function (table) {
+            if (json.add) {
+                for (let i = 0; i < json.add.length; i++) {
+                    var field = json.add[i]
+                    _this._createColumn(table, field)
+                    cloneJson.fields.push(field);
+                }
+            }
+            if (json.delete) {
+                table.dropColumns(json.delete);
+                for (let i = 0; i < json.delete.length; i++) {
+                    for (let j = 0; j < cloneJson.fields.length; j++) {
+                        if (cloneJson.fields[j].name == json.delete[i]) {
+                            cloneJson.fields.splice(j, 1);
+                            break;
+                        }
                     }
                 }
-                if (json.delete) {
-                    table.dropColumns(json.delete);
-                    for (let i = 0; i < json.delete.length; i++) {
-                        for (let j = 0; j < cloneJson.fields.length; j++) {
-                            if (cloneJson.fields[j].name == json.delete[i]) {
-                                cloneJson.fields.splice(j, 1);
+            }
+            if (json.update) {
+                //rename 
+                for (var key in json.update) {
+                    if (key != json.update[key].name) {
+                        //如果提交的字段，不在数据中，日志发出警告。
+                        let field_exist = false;
+                        for (let i = 0; i < cloneJson.fields.length; i++) {
+                            if (cloneJson.fields[i].name == key) {
+                                table.renameColumn(key, json.update[key].name)
+                                cloneJson.fields[i].name = json.update[key].name;
+                                logger.debug("rename field: " + key + " to: " + json.update[key].name);
+                                field_exist = true;
                                 break;
                             }
                         }
-                    }
-                }
-                if (json.update) {
-                    //rename 
-                    for (var key in json.update) {
-                        if (key != json.update[key].name) {
-                            //如果提交的字段，不在数据中，日志发出警告。
-                            let field_exist = false;
-                            for (let i = 0; i < cloneJson.fields.length; i++) {
-                                if (cloneJson.fields[i].name == key) {
-                                    table.renameColumn(key, json.update[key].name)
-                                    cloneJson.fields[i].name = json.update[key].name;
-                                    logger.debug("rename field: " + key + " to: " + json.update[key].name);
-                                    field_exist = true;
-                                    break;
-                                }
-                            }
-                            if (!field_exist) {
-                                logger.warn("modify field error:" + key + " not exist ,please check update json!");
-                            }
+                        if (!field_exist) {
+                            logger.warn("modify field error:" + key + " not exist ,please check update json!");
                         }
                     }
                 }
-                if (json.r_primary) {
-                    table.dropPrimary();
-                    if (json.r_primary != "_delete_") {
-                        table.primary(json.r_primary);
-                        cloneJson.primary = json.r_primary;
+            }
+            if (json.r_primary) {
+                table.dropPrimary();
+                if (json.r_primary != "_delete_") {
+                    table.primary(json.r_primary);
+                    cloneJson.primary = json.r_primary;
+                }
+            }
+        });
+        return raw;
+    }
+
+    updateModifyFieldsType(i, tablejsons, jsons, _this) {
+        let cloneJson = tablejsons[i];
+        let json = jsons[i];
+        let raw = null;
+        if (json.update) {
+            //update type , 难以保证事务一致性
+            raw = knex.schema.alterTable(cloneJson.tableName, function (table) {
+                for (let key in json.update) {
+                    let field = json.update[key];
+                    for (let i = 0; i < cloneJson.fields.length; i++) {
+                        if (cloneJson.fields[i].name == field.name) {
+                            cloneJson.fields[i] = json.update[key];
+                            logger.debug("alert field type:" + field.name);
+                            let column = _this._createColumn(table, field);
+                            column.alter();
+                            break;
+                        }
                     }
                 }
-            }).then(function () {
-                _this.json = cloneJson;
-                cloneJson = JSON.parse(JSON.stringify(_this.json));
-                if (json.update) {
-                    //update type , 难以保证事务一致性
-                    knex.schema.alterTable(_this.tableName, function (table) {
-                        for (let key in json.update) {
-                            let field = json.update[key];
-                            for (let i = 0; i < cloneJson.fields.length; i++) {
-                                if (cloneJson.fields[i].name == field.name) {
-                                    cloneJson.fields[i] = json.update[key];
-                                    logger.debug("alert field type:" + field.name);
-                                    let column = _this._createColumn(table, field);
-                                    column.alter();
-                                    break;
-                                }
-                            }
-                        }
+            })
+        }
+        return raw;
+    }
+
+    updateTable(i, tablejsons, sourceTableJons, jsons, _this, callback) {
+        let raw = this.updateTable2AddAndDeleteAndMasterKey(i, tablejsons, jsons, _this);
+        raw.then(function () {
+            sourceTableJons[i] = tablejsons[i];
+            let mraw = _this.updateModifyFieldsType(i, tablejsons, jsons, _this);
+            if (mraw != null) {
+                mraw.then(function () {
+                    sourceTableJons[i] = tablejsons[i];
+                    if (i < tablejsons.length - 1) {
+                        i++;
+                        _this.updateTable(i, tablejsons, sourceTableJons, jsons, _this, callback);
+                    } else {
+                        _this.updateMerge(sourceTableJons);
+                        callback()
+                    }
+                })
+                    .catch(function (e) {
+                        e.code = "02"
+                        logger.error("alter column type error:" + e);
+                        callback(e)
                     })
-                        .then(function () {
-                            _this.json = cloneJson;
-                            callback()
-                        })
-                        .catch(function (e) {
-                            e.code = "02"
-                            logger.error("alter column type error:" + e);
-                            callback(e)
-                        })
+            } else {
+                if (i < tablejsons.length - 1) {
+                    i++;
+                    _this.updateTable(i, tablejsons, sourceTableJons, jsons, _this, callback);
                 } else {
+                    _this.updateMerge(sourceTableJons);
                     callback()
                 }
-            }).catch(function (e) {
-                e.code = "01"
-                logger.error(e);
-                callback(e)
-            });
+            }
+        }).catch(function (e) {
+            e.code = "01"
+            logger.error(e);
+            callback(e)
+        });
+    }
 
+    update(json, callback) {
+        let tableJsons = this.getMetaTables();
+        if (typeof (json) == "object") {
+            var _this = this
+            let jsons = this.updateJson(json, tableJsons)
+            let cloneTableJsons = JSON.parse(JSON.stringify(tableJsons));
+            this.updateTable(0, cloneTableJsons, tableJsons, jsons, _this, callback);
         } else {
             logger.error("Need to submit update table information!")
         }
+    }
+    //没有考虑增表和删表
+    updateMerge(tableJsons) {
+        let newJson = tableJsons[0];
+        for (let i = 1; i < tableJsons.length; i++) {
+            let subTable = { "name": tableJsons[i].foreign, "type": "table", "relation": tableJsons[i] };
+            newJson.fields.push(subTable);
+            //console.log(tableJsons[i]);
+        }
+        this.json = newJson;
+        this.primary = newJson.primary;
+    }
+
+    updateJson(json, tableJsons) {
+        let jsonMap = new Map();
+        for (let i = 0; i < tableJsons.length; i++) {
+            let sjson = { "add": [], "update": {}, "delete": [], "r_primary": null };
+            if (tableJsons[i].foreign) {
+                jsonMap.set(tableJsons[i].foreign, sjson);
+            } else {
+                jsonMap.set("main", sjson);
+            }
+        }
+        if (json.add) {
+            for (let i1 = 0; i1 < json.add.length; i1++) {
+                let field = json.add[i1];
+                let name = field.name;
+                let names = name.split(".");
+                if (names.length > 1) {
+                    field.name = names[1];
+                    jsonMap.get(names[0]).add.push(field);
+                } else {
+                    jsonMap.get("main").add.push(field);
+                }
+            }
+        }
+        if (json.delete) {
+            for (let i1 = 0; i1 < json.delete.length; i1++) {
+                let field = json.delete[i1];
+                let names = field.split(".");
+                if (names.length > 1) {
+                    jsonMap.get(names[0]).delete.push(names[1]);
+                } else {
+                    jsonMap.get("main").delete.push(field);
+                }
+            }
+        }
+
+        if (json.update) {
+            for (var key in json.update) {
+                let names = key.split(".");
+                if (names.length > 1) {
+                    jsonMap.get(names[0]).update[names[1]] = json.update[key];
+                } else {
+                    jsonMap.get("main").update[key] = json.update[key];
+                }
+            }
+        }
+        if (json.r_primary) {
+            if (Array.isArray(json.r_primary)) {
+                for (let i1 = 0; i1 < json.r_primary.length; i1++) {
+                    let names = json.r_primary[i1].split(".");
+                    if (names.length > 1) {
+                        jsonMap.get(names[0]).r_primary = names[1];
+                    } else {
+                        jsonMap.get("main").r_primary = json.r_primary[i1];
+                    }
+                }
+            } else {
+                let names = json.r_primary.split(".");
+                if (names.length > 1) {
+                    jsonMap.get(names[0]).r_primary = names[1];
+                } else {
+                    jsonMap.get("main").r_primary = json.r_primary;
+                }
+            }
+        }
+        return [...jsonMap.values()];
     }
 
 }
