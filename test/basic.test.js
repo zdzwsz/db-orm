@@ -38,8 +38,9 @@ describe("basic.test - 基础数据服务测试 basicService", function () {
 
     it('增加数据 basicService.add', function (done) {
         this.timeout(3000);
-        var basicService = new BasicService(table_meta.tableName,table_meta.primary)
-        basicService.add({id:1,name:'zdz',age:12},function (e) {
+        var basicService = new BasicService(table_meta)
+        basicService.add({id:1,name:'zdz',age:12},function (e,data) {
+            console.log(data);
             should.not.exist(e);
             done(e);
         })
@@ -47,7 +48,7 @@ describe("basic.test - 基础数据服务测试 basicService", function () {
 
     it('查询数据 basicService.get', function (done) {
         this.timeout(3000);
-        var basicService = new BasicService(table_meta.tableName,table_meta.primary)
+        var basicService = new BasicService(table_meta)
         basicService.get(1,function (e,data) {
             should.not.exist(e);
             data.should.have.property('name','zdz');
@@ -57,7 +58,7 @@ describe("basic.test - 基础数据服务测试 basicService", function () {
 
     it('更新数据 basicService.update', function (done) {
         this.timeout(3000);
-        var basicService = new BasicService(table_meta.tableName,table_meta.primary)
+        var basicService = new BasicService(table_meta)
         basicService.update({id:1,name:'wsz',age:24},function (e) {
             should.not.exist(e);
             done(e);
@@ -66,7 +67,7 @@ describe("basic.test - 基础数据服务测试 basicService", function () {
 
     it('执行sql测试 basicService.execSql', function (done) {
         this.timeout(3000);
-        var basicService = new BasicService(table_meta.tableName,table_meta.primary)
+        var basicService = new BasicService(table_meta)
         basicService.execSql(["update "+ table_meta.tableName+" set name =? where id =?"],[["321",1]],function (e) {
             should.not.exist(e);
             done(e);
@@ -75,7 +76,7 @@ describe("basic.test - 基础数据服务测试 basicService", function () {
 
     it('删除数据 basicService.delete', function (done) {
         this.timeout(3000);
-        var basicService = new BasicService(table_meta.tableName,table_meta.primary)
+        var basicService = new BasicService(table_meta)
         basicService.delete(1,function (e) {
             should.not.exist(e);
             done(e);

@@ -4,10 +4,23 @@ var Promise = require('bluebird');
 
 class BasicService {
 
-    constructor(tableName, master) {
-        this.tableName = tableName;
-        this.master = master;
+    constructor(json) {
+        this.json = json;
+        this.init();
     }
+
+    init(){
+        let json = this.json;
+        this.tableName = json.tableName;
+        this.primary = json.primary;
+        this.subTables = new Map();
+        for(let i =0;i<json.fields.length;i++){
+            if(json.fields[i].type=="table"){
+                this.subTables.set(json.fields[i].name,json.fields[i].relation);
+            }
+        }
+    }
+
     //新增返回值是主键
     add(dataJson, callback) {
         if (dataJson == null || typeof (dataJson) == "undefined") {
@@ -16,7 +29,39 @@ class BasicService {
             }
             return;
         }
-        knex(this.tableName).returning(this.master).insert(dataJson)
+        let data = this.processData(dataJson);
+        let _this = this;
+        this.addField(data.main,this.tableName,this.primary, function(e,id){
+            id = data.main[_this.primary]||id;
+            let subs = data.subs;
+            for(let [key ,values] of subs){
+               for(let i =0;i<values.length;i++){
+                  values[i][key] = id;
+               }
+               let subTableMeta = _this.subTables.get(key);
+               _this.addField(values,subTableMeta.tableName,subTableMeta.primary);
+            }
+            if(callback){
+                callback(null,id);
+            }
+        });
+    }
+
+    processData(dataJson){
+       let data = {main:null,subs:new Map()};
+       for(let key in dataJson){
+           if(this.subTables.has(key)){
+              let meta = this.subTables.get(key);
+              data.subs.set(key,dataJson[key]);
+              delete dataJson[key];
+           }
+       }
+       data.main = dataJson;
+       return data;
+    }
+
+    addField(dataJson,tableName,primary, callback){
+        knex(tableName).returning(primary).insert(dataJson)
             .then(function (data) {
                 if (callback) {
                     if (data && data.length && data.length > 0) {
@@ -25,12 +70,13 @@ class BasicService {
                     callback(null, data);
                 }
             }).catch(function (e) {
-                logger.error(e);
+                //logger.error(e);
                 if (callback) {
                     callback(e)
                 }
             });
     }
+
     //返回值是成功的条数，一般是1
     update(dataJson, callback) {
         if (dataJson == null || typeof (dataJson) == "undefined") {
@@ -39,8 +85,8 @@ class BasicService {
             }
             return;
         }
-        let value = dataJson[this.master];
-        knex(this.tableName).where(this.master, value).update(dataJson)
+        let value = dataJson[this.primary];
+        knex(this.tableName).where(this.primary, value).update(dataJson)
             .then(function (data) {
                 //console.log(data);
                 if (callback) {
@@ -82,7 +128,7 @@ class BasicService {
 
         let parame = {};
         if (typeof (id) != "object") {
-            parame[this.master] = id
+            parame[this.primary] = id
         } else {
             parame = id;
         }

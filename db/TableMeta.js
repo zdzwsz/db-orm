@@ -223,9 +223,6 @@ class TableMeta {
             return;
         }
         let tableName = tableJsons[i].tableName;
-        // if (typeof (tableName) != "string") {
-        //     tableName = tableName.tableName;
-        // }
         knex.schema.dropTableIfExists(tableName).then(function () {
             if (i < tableJsons.length - 1) {
                 i++;
@@ -387,7 +384,7 @@ class TableMeta {
         for (let i = 1; i < tableJsons.length; i++) {
             let subTable = { "name": tableJsons[i].foreign, "type": "table", "relation": tableJsons[i] };
             newJson.fields.push(subTable);
-            //console.log(tableJsons[i]);
+            this.deleteForeignKey(tableJsons[i])
         }
         this.json = newJson;
         this.primary = newJson.primary;
@@ -395,16 +392,17 @@ class TableMeta {
             for (let i = 0; i < addTable.length; i++) {
                 let subTable = { "name": addTable[i].foreign, "type": "table", "relation": addTable[i] };
                 newJson.fields.push(subTable);
+                this.deleteForeignKey(addTable[i])
             }
         }
-        // if (delTable) {
-        //     for (let i = 0; i < delTable.length; i++) {
-        //         for (let j = 0; j < newJson.fields.length; j++)
-        //             if (newJson.fields[j].name == delTable[i].foreign) {
-        //                 newJson.fields.splice(j, 1);
-        //             }
-        //     }
-        // }
+    }
+
+    deleteForeignKey(tableJson){
+        for(let i =0;i<tableJson.fields.length;i++){
+            if(tableJson.fields[i].name == tableJson.foreign){
+                tableJson.fields.splice(i,1);
+            }
+        }
     }
 
     updateJson(json, tableJsons) {

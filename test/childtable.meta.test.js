@@ -61,40 +61,6 @@ var table_update = {
     ]
 }
 
-var data_add = {
-    id: 1,
-    name: "zdzwsz",
-    age: 12,
-    birthday: "2010-11-02 12:00:00",
-    resume: [
-        {
-            id: 1,
-            startTime: "1980-11-02",
-            stopTime: "1996-11-02",
-            detail: "study"
-        },
-        {
-            id: 2,
-            startTime: "1996-11-02",
-            stopTime: "2006-11-02",
-            detail: "work"
-        }
-    ],
-    family:[
-        {
-            id:1,
-            name:"zdz",
-            detail:"father"
-        },
-        {
-            id:2,
-            name:"wsz",
-            detail:"mather"
-        }
-    ]
-
-}
-
 describe('childtable.meta.test -  子从表元数据数据库操作 测试', function () {
 
     after(function () {

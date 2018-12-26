@@ -65,7 +65,7 @@ class DataManager extends EventEmitter {
         if (validateResult.ok) {
             var metaJson = this.getMetaJson(service, name);
             let ServiceClass = this.getServiceClass(service, name);
-            var service = Reflect.construct(ServiceClass, [metaJson.tableName, metaJson.primary]);
+            var service = Reflect.construct(ServiceClass, [metaJson]);
             let _this = this;
             try{
                 let func = service[actionName];
