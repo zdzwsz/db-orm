@@ -31,7 +31,7 @@ var table_update = {
     ]
 }
 
-describe.only('元数据数据库操作 测试', function () {
+describe('db.meta.test - 元数据数据库操作 测试', function () {
 
     after(function () {
         console.log("close database pool!");

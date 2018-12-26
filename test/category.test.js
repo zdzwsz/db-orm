@@ -6,7 +6,7 @@ var request = supertest(webServer.server);
 
 var codeBase64 = "c2VydmljZSgncGFyYW0nLCBmdW5jdGlvbiAodjEsIHYyLCB2MywgZGIsIHJlcGx5KSB7CiAgICBzbG9nLmluZm8oInYxIHZhbHVlIGlzOiIgKyB2MSk7CiAgICBzbG9nLmluZm8oInYyIHZhbHVlIGlzOiIgKyB2Mik7CiAgICBzbG9nLmluZm8oInYzIHZhbHVlIGlzOiIgKyB2Myk7CiAgICByZXBseS5vaygpOwp9KQ=="
 
-describe('业务分类 测试', function () {
+describe('category.test - 业务分类 测试', function () {
   var token = null;
  
   before(function () {

@@ -95,7 +95,7 @@ var data_add = {
 
 }
 
-describe.only('子从表元数据数据库操作 测试', function () {
+describe('childtable.meta.test -  子从表元数据数据库操作 测试', function () {
 
     after(function () {
         console.log("close database pool!");

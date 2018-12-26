@@ -14,7 +14,7 @@ var table_meta = {
 }
 
 
-describe("基础数据服务测试 basicService", function () {
+describe("basic.test - 基础数据服务测试 basicService", function () {
 
     before(function(done){
         this.timeout(4000);

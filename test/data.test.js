@@ -9,7 +9,7 @@ var test_delete = { id: 1 };
 var test_get = { id: 1 };
 var test_update = { id: 1, name: "egg", age: "21" };
 
-describe('数据服务增删查改 测试', function () {
+describe('data.test - 数据服务增删查改 测试', function () {
   var token = null;
 
   before(function () {

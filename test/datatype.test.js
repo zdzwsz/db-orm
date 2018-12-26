@@ -19,7 +19,7 @@ var test_entry_data = {
 }
 
 
-describe('各种数据类型保存查询测试', function () {
+describe('datatype.test - 各种数据类型保存查询测试', function () {
     var token = null;
     before(function (done) {
         this.timeout(4000);

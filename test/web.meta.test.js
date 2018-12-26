@@ -31,7 +31,7 @@ var test_entry_update_data = {
     ]
 }
 
-describe('元数据服务 测试', function () {
+describe('web.meta.test - 元数据服务 测试', function () {
     var token = null;
     before(function () {
         return request.post('/auth')

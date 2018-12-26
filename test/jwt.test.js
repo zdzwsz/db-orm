@@ -3,7 +3,7 @@ var webServer = require('../index');
 var supertest = require('supertest');
 var request = supertest(webServer.server);
 
-describe('JWT 测试', function () {
+describe('jwt.test - JWT 测试', function () {
 
   after(function () {
     console.log("测试完成,关闭API服务器");

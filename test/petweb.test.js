@@ -6,7 +6,7 @@ var KnexManager = require("./../db/KnexManager");
 var UUID = require('uuid');
 
 
-describe('pet 业务服务测试', function () {
+describe('petweb.test - 业务服务测试', function () {
   var token = null;
 
   before(function () {
