@@ -60,7 +60,7 @@ describe.only("childTable.basic.test - 基础数据服务测试(子从表) basic
        
     // })
 
-    it('增加数据 basicService.add', function (done) {
+    it('增加数据子从表 basicService.add', function (done) {
         var data_add = {
             name: "zdzwsz",
             age: 12,
@@ -75,7 +75,7 @@ describe.only("childTable.basic.test - 基础数据服务测试(子从表) basic
                 {
                     id: 2,
                     startTime: "1996-11-02",
-                    stopTime: "2006-11-02",
+                    stopTime: "2006-12-02",
                     detail: "work"
                 }
             ],
@@ -95,22 +95,26 @@ describe.only("childTable.basic.test - 基础数据服务测试(子从表) basic
         }
         this.timeout(3000);
         var basicService = new BasicService(table_meta)
-        basicService.add(data_add,function (e) {
+        basicService.add(data_add,function (e,data) {
             should.not.exist(e);
-            done(e);
+            console.log("返回主键值:"+data)
+            setTimeout(() => {
+                done(e);
+            }, 60); 
         })
     })
 
-    it.skip('查询数据 basicService.get', function (done) {
+    it('查询数据子从表 basicService.get', function (done) {
         this.timeout(3000);
         var basicService = new BasicService(table_meta)
         basicService.get(1,function (e,data) {
+            console.log(data);
             should.not.exist(e);
             done(e);
         })
     })
 
-    it.skip('更新数据 basicService.update', function (done) {
+    it.skip('更新数据子从表 basicService.update', function (done) {
         this.timeout(3000);
         var basicService = new BasicService(table_meta)
         basicService.update({id:1,name:'wsz',age:24},function (e) {
@@ -119,10 +123,11 @@ describe.only("childTable.basic.test - 基础数据服务测试(子从表) basic
         })
     })
 
-    it.skip('删除数据 basicService.delete', function (done) {
+    it('删除数据子从表 basicService.delete', function (done) {
         this.timeout(3000);
         var basicService = new BasicService(table_meta)
-        basicService.delete(1,function (e) {
+        basicService.delete(1,function (e,data) {
+            console.log(data);
             should.not.exist(e);
             done(e);
         })

@@ -14,7 +14,7 @@ var table_meta = {
 }
 
 
-describe("basic.test - 基础数据服务测试 basicService", function () {
+describe.only("basic.test - 基础数据服务测试 basicService", function () {
 
     before(function(done){
         this.timeout(4000);
@@ -40,9 +40,11 @@ describe("basic.test - 基础数据服务测试 basicService", function () {
         this.timeout(3000);
         var basicService = new BasicService(table_meta)
         basicService.add({id:1,name:'zdz',age:12},function (e,data) {
-            console.log(data);
             should.not.exist(e);
-            done(e);
+            setTimeout(() => {
+                done(e);
+            }, 80); 
+            
         })
     })
 
@@ -51,6 +53,7 @@ describe("basic.test - 基础数据服务测试 basicService", function () {
         var basicService = new BasicService(table_meta)
         basicService.get(1,function (e,data) {
             should.not.exist(e);
+            //console.log(data);
             data.should.have.property('name','zdz');
             done(e);
         })

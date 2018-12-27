@@ -28,4 +28,16 @@ var ResCode = {
 
 }
 
+// let test = new Map();
+// test.set(1,"a1");
+// test.set(2,"a2");
+// test.set(3,"a3");
+// test.set(4,"a4");
+// let [key,value] = [null,null];
+// for([key,value] of test){
+
+// }
+// console.log(key);
+// console.log(value);
+
 module.exports = ResCode

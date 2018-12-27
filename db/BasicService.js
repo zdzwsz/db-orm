@@ -2,6 +2,7 @@ const knex = require("./KnexManager").getKnex();
 const logger = require("./../log")
 var Promise = require('bluebird');
 
+
 class BasicService {
 
     constructor(json) {
@@ -9,16 +10,29 @@ class BasicService {
         this.init();
     }
 
-    init(){
+    init() {
         let json = this.json;
         this.tableName = json.tableName;
         this.primary = json.primary;
         this.subTables = new Map();
-        for(let i =0;i<json.fields.length;i++){
-            if(json.fields[i].type=="table"){
-                this.subTables.set(json.fields[i].name,json.fields[i].relation);
+        for (let i = 0; i < json.fields.length; i++) {
+            if (json.fields[i].type == "table") {
+                this.subTables.set(json.fields[i].name, json.fields[i].relation);
             }
         }
+    }
+
+    processData(dataJson) {
+        let data = { main: null, subs: new Map() };
+        for (let key in dataJson) {
+            if (this.subTables.has(key)) {
+                let meta = this.subTables.get(key);
+                data.subs.set(key, dataJson[key]);
+                delete dataJson[key];
+            }
+        }
+        data.main = dataJson;
+        return data;
     }
 
     //新增返回值是主键
@@ -30,51 +44,46 @@ class BasicService {
             return;
         }
         let data = this.processData(dataJson);
+        this.addField(data, callback)
+    }
+
+    addField(data, callback) {
+        //console.log(data);
         let _this = this;
-        this.addField(data.main,this.tableName,this.primary, function(e,id){
-            id = data.main[_this.primary]||id;
+        knex.transaction(function (trx) {
+            let id = data.main[_this.primary];
             let subs = data.subs;
-            for(let [key ,values] of subs){
-               for(let i =0;i<values.length;i++){
-                  values[i][key] = id;
-               }
-               let subTableMeta = _this.subTables.get(key);
-               _this.addField(values,subTableMeta.tableName,subTableMeta.primary);
-            }
-            if(callback){
-                callback(null,id);
-            }
-        });
-    }
-
-    processData(dataJson){
-       let data = {main:null,subs:new Map()};
-       for(let key in dataJson){
-           if(this.subTables.has(key)){
-              let meta = this.subTables.get(key);
-              data.subs.set(key,dataJson[key]);
-              delete dataJson[key];
-           }
-       }
-       data.main = dataJson;
-       return data;
-    }
-
-    addField(dataJson,tableName,primary, callback){
-        knex(tableName).returning(primary).insert(dataJson)
-            .then(function (data) {
-                if (callback) {
-                    if (data && data.length && data.length > 0) {
-                        data = data[0];
+            knex(_this.tableName).returning(_this.primary).insert(data.main).transacting(trx)
+                .then(function (ids) {
+                    id = id || ids[0];
+                    if (subs.size > 0) {
+                        for (let [key, values] of subs) {
+                            for (let i = 0; i < values.length; i++) {
+                                values[i][key] = id;
+                            }
+                        }
+                        let keys = [...subs.keys()];
+                        return Promise.map(keys, function (key) {
+                            let subTableData = subs.get(key);
+                            let subTableName = _this.subTables.get(key).tableName;
+                            return knex.insert(subTableData).into(subTableName).transacting(trx);
+                        })
                     }
-                    callback(null, data);
-                }
-            }).catch(function (e) {
-                //logger.error(e);
-                if (callback) {
-                    callback(e)
-                }
-            });
+                })
+                .then(function () {
+                    trx.commit();
+                    if (callback) {
+                        callback(null, id);
+                    }
+                })
+                .catch(function (e) {
+                    logger.error(e);
+                    trx.rollback();
+                    if (callback) {
+                        callback(e);
+                    }
+                });
+        })
     }
 
     //返回值是成功的条数，一般是1
@@ -108,17 +117,26 @@ class BasicService {
                 return;
             }
         }
-        knex(this.tableName).where(parame).del()
-            .then(function (data) {
-                if (callback) {
-                    callback(null, data);
-                }
-            }).catch(function (e) {
-                logger.error(e);
-                if (callback) {
-                    callback(e)
-                }
-            });
+        let _this = this;
+        knex.transaction(function (trx) {
+            let raws = []
+            for (let [key, value] of _this.subTables) {
+                let raw = knex(value.tableName).whereIn(key, function () {
+                    this.select(_this.primary).from(_this.tableName).where(parame);
+                }).del().transacting(trx);
+                raws.push(raw);
+            }
+            raws.push(knex(_this.tableName).where(parame).del().transacting(trx));
+            return Promise.all(raws)
+        }).then(function(data){
+            if(callback){
+                callback(null,data);
+            }
+        }).catch(function(e){
+            if(callback){
+                callback(e);
+            }
+        })
     }
 
     _getParameter(id) {
@@ -143,17 +161,38 @@ class BasicService {
             }
             return;
         }
-        //console.log(parame);
+        var _this = this;
+        let returnValue = {};
         knex(this.tableName).where(parame)
             .then(function (value) {
-                if (callback) {
-                    //console.log(value);
-                    if (value && value.length && value.length > 0) {
-                        value = value[0];
+                if (value && value.length && value.length > 0) {
+                    value = value[0];
+                    returnValue = value;
+                    let id = returnValue[_this.primary];
+                    if (_this.subTables.size > 0) {
+                        return Promise.map(_this.subTables.keys(), function (key) {
+                            let meta = _this.subTables.get(key);
+                            let parame = {};
+                            parame[key] = id
+                            return knex(meta.tableName).where(parame);
+                        })
                     }
-                    callback(null, value);
                 }
-            }).catch(function (e) {
+            })
+            .then(function (values) {
+                let keys = [..._this.subTables.keys()];
+                for (let i = 0; i < keys.length; i++) {
+                    if (values) {
+                        returnValue[keys[i]] = values[i];
+                    } else {
+                        returnValue[keys[i]] = [];
+                    }
+                }
+                if (callback) {
+                    callback(null, returnValue);
+                }
+            })
+            .catch(function (e) {
                 logger.error(e);
                 if (callback) {
                     callback(e, null)
