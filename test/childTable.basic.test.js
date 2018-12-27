@@ -38,27 +38,26 @@ var table_meta = {
     ]
 }
 
-describe.only("childTable.basic.test - 基础数据服务测试(子从表) basicService", function () {
+describe("childTable.basic.test - 基础数据服务测试(子从表) basicService", function () {
 
-    before(function(done){
+    before(function (done) {
         this.timeout(4000);
         var table = TableMeta.load(table_meta);
-        table.create(function(){
+        table.create(function () {
             done();
         });
     })
 
-    // after(function (done) {
-    //     this.timeout(4000);
-    //     var table = TableMeta.load(table_meta);
-    //     table.delete(function(){
-    //         console.log("close database pool!");
-    //         KnexManager.destroy();
-    //         webServer.stop();
-    //         done();
-    //     });
-       
-    // })
+    after(function (done) {
+        this.timeout(4000);
+        var table = TableMeta.load(table_meta);
+        table.delete(function(){
+            console.log("close database pool!");
+            KnexManager.destroy();
+            webServer.stop();
+            done();
+        });
+    })
 
     it('增加数据子从表 basicService.add', function (done) {
         var data_add = {
@@ -79,45 +78,73 @@ describe.only("childTable.basic.test - 基础数据服务测试(子从表) basic
                     detail: "work"
                 }
             ],
-            family:[
+            family: [
                 {
-                    id:1,
-                    name:"zdz",
-                    detail:"father"
+                    id: 1,
+                    name: "zdz",
+                    detail: "father"
                 },
                 {
-                    id:2,
-                    name:"wsz",
-                    detail:"mather"
+                    id: 2,
+                    name: "wsz",
+                    detail: "mather"
                 }
             ]
-        
+
         }
         this.timeout(3000);
         var basicService = new BasicService(table_meta)
-        basicService.add(data_add,function (e,data) {
+        basicService.add(data_add, function (e, data) {
             should.not.exist(e);
-            console.log("返回主键值:"+data)
+            console.log("返回主键值:" + data)
             setTimeout(() => {
                 done(e);
-            }, 60); 
+            }, 60);
         })
     })
 
     it('查询数据子从表 basicService.get', function (done) {
         this.timeout(3000);
         var basicService = new BasicService(table_meta)
-        basicService.get(1,function (e,data) {
+        basicService.get(1, function (e, data) {
             console.log(data);
             should.not.exist(e);
             done(e);
         })
     })
 
-    it.skip('更新数据子从表 basicService.update', function (done) {
+    it('更新数据子从表 basicService.update', function (done) {
+        var data_update = {
+            id: 1,
+            name: "zdzwsz111",
+            age: 12,
+            birthday: "2010-11-02 12:00:00",
+            resume: [
+                {
+                    id: 1,
+                    startTime: "1980-11-02",
+                    stopTime: "1996-12-02",
+                    detail: "study111"
+                }
+            ],
+            family: [
+                {
+                    id: 1,
+                    name: "zdz1",
+                    detail: "father"
+                },
+                {
+                    id: 3,
+                    name: "wsz1",
+                    detail: "mather1"
+                }
+            ]
+
+        }
         this.timeout(3000);
         var basicService = new BasicService(table_meta)
-        basicService.update({id:1,name:'wsz',age:24},function (e) {
+        basicService.update(data_update, function (e,data) {
+            console.log(data);
             should.not.exist(e);
             done(e);
         })
@@ -126,7 +153,7 @@ describe.only("childTable.basic.test - 基础数据服务测试(子从表) basic
     it('删除数据子从表 basicService.delete', function (done) {
         this.timeout(3000);
         var basicService = new BasicService(table_meta)
-        basicService.delete(1,function (e,data) {
+        basicService.delete(1, function (e, data) {
             console.log(data);
             should.not.exist(e);
             done(e);

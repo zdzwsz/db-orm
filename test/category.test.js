@@ -68,7 +68,7 @@ describe('category.test - 业务分类 测试', function () {
         should.not.exist(err);
         console.log(res.body);
         res.body.should.have.property('code', '000');
-        done(err);
+        setTimeout(done,100);
       });
   });
 
@@ -105,7 +105,7 @@ describe('category.test - 业务分类 测试', function () {
       .end(function (err, res) {
         should.not.exist(err);
         res.body.should.have.property('code', '000');
-        done(err);
+        setTimeout(done,200);
       });
   });
 

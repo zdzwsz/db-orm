@@ -14,7 +14,7 @@ var table_meta = {
 }
 
 
-describe.only("basic.test - 基础数据服务测试 basicService", function () {
+describe("basic.test - 基础数据服务测试 basicService", function () {
 
     before(function(done){
         this.timeout(4000);
@@ -62,7 +62,8 @@ describe.only("basic.test - 基础数据服务测试 basicService", function () 
     it('更新数据 basicService.update', function (done) {
         this.timeout(3000);
         var basicService = new BasicService(table_meta)
-        basicService.update({id:1,name:'wsz',age:24},function (e) {
+        basicService.update({id:1,name:'wsz',age:24},function (e,data) {
+            console.log(data);
             should.not.exist(e);
             done(e);
         })

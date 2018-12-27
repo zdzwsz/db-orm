@@ -82,7 +82,7 @@ describe('datatype.test - 各种数据类型保存查询测试', function () {
                 res.body.should.have.property('code', '000');
                 console.log(res.body)
                 res.body.should.have.property('data', 2);
-                done(err);
+                setTimeout(done,100);
             });
     });
 

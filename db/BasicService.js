@@ -62,8 +62,7 @@ class BasicService {
                                 values[i][key] = id;
                             }
                         }
-                        let keys = [...subs.keys()];
-                        return Promise.map(keys, function (key) {
+                        return Promise.map(subs.keys(), function (key) {
                             let subTableData = subs.get(key);
                             let subTableName = _this.subTables.get(key).tableName;
                             return knex.insert(subTableData).into(subTableName).transacting(trx);
@@ -94,19 +93,83 @@ class BasicService {
             }
             return;
         }
-        let value = dataJson[this.primary];
-        knex(this.tableName).where(this.primary, value).update(dataJson)
-            .then(function (data) {
-                //console.log(data);
-                if (callback) {
-                    callback(null, data);
-                }
-            }).catch(function (e) {
-                logger.error(e);
-                if (callback) {
-                    callback(e)
-                }
-            });
+        let data = this.processData(dataJson);
+        this.updateField(data,callback);
+    }
+
+    updateField(data, callback) {
+        let _this = this;
+        let id = data.main[_this.primary];
+        knex.transaction(function (trx) {
+            let subs = data.subs;
+            knex(_this.tableName).where(_this.primary, id).update(data.main).transacting(trx)
+                //子表，先删除多余的，即主键不在目前主键中的。
+                .then(function () {
+                    let selectRaw = [];
+                    for (let [key, value] of _this.subTables) {
+                        let where = {};
+                        where[key] = id;
+                        selectRaw.push(knex(value.tableName).select(value.primary).where(where));
+                    }
+                    return Promise.all(selectRaw);
+                })
+                .then(function (values) {
+                    let j = 0
+                    let oldValueMap = new Map();
+                    for (let [key, value] of _this.subTables) {
+                        let pArray = [];
+                        values[j].forEach(function(v){
+                            pArray.push(v[value.primary])
+                        })
+                        oldValueMap.set(key, pArray);
+                        j++;
+                    }
+                    let execRaw = [];
+                    for (let [key, values] of subs) {
+                        let newJson =[];
+                        let oldValues = oldValueMap.get(key);
+                        let tableMeta = _this.subTables.get(key);
+                        for (let i = 0; i < values.length; i++) {
+                            values[i][key] = id;
+                            //console.log(values[i]);
+                            let subPrimary = values[i][tableMeta.primary];
+                            if(subPrimary){
+                                //如果主键不在旧主键中，也是新增，否则是修改
+                                let index = oldValues.indexOf(subPrimary);
+                                //console.log(oldValues);
+                                if(index >-1){
+                                    execRaw.push(knex(tableMeta.tableName).where(tableMeta.primary, subPrimary).update(values[i]).transacting(trx));
+                                    oldValues.splice(index,1);
+                                }else{
+                                    newJson.push(values[i]);
+                                }
+                            }else{//new
+                                newJson.push(values[i]);
+                            }
+                        }
+                        if(oldValues.length>0){
+                            execRaw.push(knex(tableMeta.tableName).whereIn(tableMeta.primary,oldValues).del().transacting(trx));
+                        }
+                        if(newJson.length>0){
+                            execRaw.push(knex(tableMeta.tableName).insert(newJson).transacting(trx));
+                        }
+                    }
+                    return Promise.all(execRaw);
+                })
+                .then(function(data){
+                    trx.commit();
+                    if (callback) {
+                        callback(null,data);
+                    }
+                })
+                .catch(function (e) {
+                    logger.error(e);
+                    trx.rollback();
+                    if (callback) {
+                        callback(e);
+                    }
+                });
+        })
     }
 
     delete(id, callback) {
@@ -128,12 +191,12 @@ class BasicService {
             }
             raws.push(knex(_this.tableName).where(parame).del().transacting(trx));
             return Promise.all(raws)
-        }).then(function(data){
-            if(callback){
-                callback(null,data);
+        }).then(function (data) {
+            if (callback) {
+                callback(null, data);
             }
-        }).catch(function(e){
-            if(callback){
+        }).catch(function (e) {
+            if (callback) {
                 callback(e);
             }
         })
