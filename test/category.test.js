@@ -10,7 +10,7 @@ describe('category.test - 业务分类 测试', function () {
   var token = null;
  
   before(function () {
-    return request.post('/auth')
+    return request.post('/metaAuth')
       .send({ name: 'admin', password: '123456' })
       .then(function (res) {
         token = res.body.token;

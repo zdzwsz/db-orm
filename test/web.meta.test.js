@@ -34,7 +34,7 @@ var test_entry_update_data = {
 describe('web.meta.test - 元数据服务 测试', function () {
     var token = null;
     before(function () {
-        return request.post('/auth')
+        return request.post('/metaAuth')
             .send({ name: 'admin', password: '123456' })
             .then(function (res) {
                 token = res.body.token;

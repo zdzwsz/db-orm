@@ -36,14 +36,11 @@ class WebServer {
                 }
             }
         }
-        if (this.config.users == null) {
+        if (this.config.user == null) {
             logger.error("please config file <config.js>,set user name and user password");
             ok = false;
         }
-        if (this.config.jwtsecret == null) {
-            logger.error("please config file <config.js>,set jwtsecret value");
-            ok = false;
-        }
+        
         if (this.config.database == null) {
             logger.error("please config file <config.js>,set database value");
             ok = false;
@@ -56,7 +53,8 @@ class WebServer {
         this.app.use(bodyParser.json());
         this.app.use(log4js.connectLogger(logger, { level: 'auto' }));
         this.app.use('/auth', auth.getToken);
-        var metaRouter = new MetaRouter(auth.intercept);
+        this.app.use('/metaAuth', auth.getMetaToken);
+        var metaRouter = new MetaRouter(auth.metaIntercept);
         this.app.use('/meta', metaRouter.router);
         var dataRouter = new DataRouter(auth.intercept);
         this.app.use('/data', dataRouter.router);

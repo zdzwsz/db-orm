@@ -2,17 +2,22 @@
   "network": {
     "port": 8080
   },
-  "users": {
+  "user": {
     "name": "admin",
-    "password": "123456"
+    "password": "123456",
+    "secret": "myjwttest"
   },
   "modules":"d:/modules",
-  "jwtsecret": "myjwttest",
   "database": {
     "dbtype":"mysql",
     "host": "127.0.0.1",
     "user": "root",
     "password": "123456",
     "dbname": "test"
+  },
+  "meta":{
+    "secret": "mytest",
+    "name": "admin",
+    "password": "123456"
   }
 }

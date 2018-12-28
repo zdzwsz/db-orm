@@ -69,7 +69,7 @@ describe('childtable.web.meta.test -  子从表元数据数据库服务操作 �
 
     var token = null;
     before(function () {
-        return request.post('/auth')
+        return request.post('/metaAuth')
             .send({ name: 'admin', password: '123456' })
             .then(function (res) {
                 token = res.body.token;

@@ -21,18 +21,26 @@ var test_entry_data = {
 
 describe('datatype.test - 各种数据类型保存查询测试', function () {
     var token = null;
+    var metaToken = null;
+
     before(function (done) {
         this.timeout(4000);
         request.post('/auth')
             .send({ name: 'admin', password: '123456' })
             .then(function (res) {
                 token = res.body.token;
+            })
+        
+        request.post('/metaAuth')
+            .send({ name: 'admin', password: '123456' })
+            .then(function (res) {
+                metaToken = res.body.token;
                 request.post('/meta/' + test_data_type + '/add')
-                    .set('x-access-token', token).then(
+                    .set('x-access-token', metaToken).then(
                         request.post('/meta/' + test_data_type + '/' + test_entry_name + '/add')
-                            .set('x-access-token', token)
+                            .set('x-access-token', metaToken)
                             .send(test_entry_data)
-                            .then(function(){
+                            .then(function(e){
                                 done();
                             })
                     )
@@ -41,10 +49,10 @@ describe('datatype.test - 各种数据类型保存查询测试', function () {
 
    after(function (done) {
         request.post('/meta/' + test_data_type + '/' + test_entry_name + '/delete')
-            .set('x-access-token', token)
+            .set('x-access-token', metaToken)
             .then(function (err, res) {
                 request.post('/meta/' + test_data_type + '/delete')
-                    .set('x-access-token', token)
+                    .set('x-access-token', metaToken)
                     .then(function () {
                         console.log("测试完成,关闭API服务器");
                        KnexManager.destroy();
