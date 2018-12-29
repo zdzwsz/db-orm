@@ -1,4 +1,4 @@
-var KnexManager = require("./../db/KnexManager");
+
 var webServer = require('../index');
 var should = require('should');
 var TableMeta = require("../db/TableMeta")
@@ -29,6 +29,7 @@ describe("basic.test - 基础数据服务测试 basicService", function () {
         var table = TableMeta.load(table_meta);
         table.delete(function(){
             console.log("close database pool!");
+            var KnexManager = require("./../db/KnexManager");
             KnexManager.destroy();
             webServer.stop();
             done();
@@ -43,7 +44,7 @@ describe("basic.test - 基础数据服务测试 basicService", function () {
             should.not.exist(e);
             setTimeout(() => {
                 done(e);
-            }, 80); 
+            }, 100); 
             
         })
     })
@@ -53,7 +54,7 @@ describe("basic.test - 基础数据服务测试 basicService", function () {
         var basicService = new BasicService(table_meta)
         basicService.get(1,function (e,data) {
             should.not.exist(e);
-            //console.log(data);
+            console.log(data);
             data.should.have.property('name','zdz');
             done(e);
         })

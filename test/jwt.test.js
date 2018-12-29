@@ -4,7 +4,7 @@ var supertest = require('supertest');
 var request = supertest(webServer.server);
 
 describe('jwt.test - JWT 测试', function () {
-
+  let token = null;
   after(function () {
     console.log("测试完成,关闭API服务器");
     webServer.stop();
@@ -17,6 +17,7 @@ describe('jwt.test - JWT 测试', function () {
       .end(function (err, res) {
         should.not.exist(err);
         res.body.should.have.property('success', true);
+        token = res.body.token;
         done(err);
       });
   });
@@ -49,6 +50,31 @@ describe('jwt.test - JWT 测试', function () {
       .end(function (err, res) {
         should.not.exist(err);
         res.body.should.have.property('success', false);
+        done(err);
+      });
+  });
+
+  it('直接登陆不成功取得Meta token', function (done) {
+    request.post('/metaAuth')
+      .send({ name: 'admin', password: '123456' })
+      .expect('Content-Type', /json/)
+      .end(function (err, res) {
+        should.not.exist(err);
+        res.body.should.have.property('success', false);
+        console.log(res.body);
+        done(err);
+      });
+  });
+
+  it('登陆成功取得Meta token', function (done) {
+    request.post('/metaAuth')
+    .set('x-access-token', token)
+      .send({ name: 'admin', password: '123456' })
+      .expect('Content-Type', /json/)
+      .end(function (err, res) {
+        should.not.exist(err);
+        res.body.should.have.property('success', true);
+        console.log(res.body.token);
         done(err);
       });
   });

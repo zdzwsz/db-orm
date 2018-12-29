@@ -1,4 +1,4 @@
-var KnexManager = require("../db/KnexManager");
+
 var webServer = require('../index');
 var should = require('should');
 var TableMeta = require("../db/TableMeta")
@@ -53,6 +53,7 @@ describe("childTable.basic.test - 基础数据服务测试(子从表) basicServi
         var table = TableMeta.load(table_meta);
         table.delete(function(){
             console.log("close database pool!");
+            var KnexManager = require("../db/KnexManager");
             KnexManager.destroy();
             webServer.stop();
             done();

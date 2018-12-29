@@ -1,6 +1,5 @@
 
 var should = require('should');
-var KnexManager = require("../db/KnexManager");
 var webServer = require('../index');
 var supertest = require('supertest');
 var request = supertest(webServer.server);
@@ -33,13 +32,24 @@ var test_entry_update_data = {
 
 describe('web.meta.test - 元数据服务 测试', function () {
     var token = null;
-    before(function () {
-        return request.post('/metaAuth')
+    var other = null
+    before(function (done) {
+        request.post('/auth')
             .send({ name: 'admin', password: '123456' })
             .then(function (res) {
-                token = res.body.token;
-                request.post('/meta/' + test_data_type + '/add')
-                    .set('x-access-token', token).then()
+                other = res.body.token;
+            })
+            .then(function () {
+                request.post('/metaAuth')
+                    .send({ name: 'admin', password: '123456' })
+                    .set('x-access-token', other)
+                    .then(function (res) {
+                        token = res.body.token;
+                        request.post('/meta/' + test_data_type + '/add')
+                            .set('x-access-token', token).then(function(){
+                                done();
+                            })
+                    })
             })
     });
 
@@ -48,6 +58,7 @@ describe('web.meta.test - 元数据服务 测试', function () {
             .set('x-access-token', token)
             .then(function () {
                 console.log("测试完成,关闭API服务器");
+                var KnexManager = require("../db/KnexManager");
                 KnexManager.destroy();
                 webServer.stop();
                 done();

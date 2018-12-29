@@ -53,6 +53,7 @@ class WebServer {
         this.app.use(bodyParser.json());
         this.app.use(log4js.connectLogger(logger, { level: 'auto' }));
         this.app.use('/auth', auth.getToken);
+        this.app.use('/metaAuth', auth.intercept);
         this.app.use('/metaAuth', auth.getMetaToken);
         var metaRouter = new MetaRouter(auth.metaIntercept);
         this.app.use('/meta', metaRouter.router);

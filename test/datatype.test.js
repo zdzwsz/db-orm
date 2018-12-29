@@ -1,6 +1,5 @@
 
 var should = require('should');
-var KnexManager = require("./../db/KnexManager");
 var webServer = require('../index');
 var supertest = require('supertest');
 var request = supertest(webServer.server);
@@ -29,25 +28,26 @@ describe('datatype.test - 各种数据类型保存查询测试', function () {
             .send({ name: 'admin', password: '123456' })
             .then(function (res) {
                 token = res.body.token;
-            })
-        
-        request.post('/metaAuth')
-            .send({ name: 'admin', password: '123456' })
-            .then(function (res) {
-                metaToken = res.body.token;
-                request.post('/meta/' + test_data_type + '/add')
-                    .set('x-access-token', metaToken).then(
-                        request.post('/meta/' + test_data_type + '/' + test_entry_name + '/add')
-                            .set('x-access-token', metaToken)
-                            .send(test_entry_data)
-                            .then(function(e){
-                                done();
+            }).then(function () {
+                request.post('/metaAuth')
+                    .send({ name: 'admin', password: '123456' })
+                    .set('x-access-token', token)
+                    .then(function (res) {
+                        metaToken = res.body.token;
+                        request.post('/meta/' + test_data_type + '/add')
+                            .set('x-access-token', metaToken).then(function () {
+                                request.post('/meta/' + test_data_type + '/' + test_entry_name + '/add')
+                                    .set('x-access-token', metaToken)
+                                    .send(test_entry_data)
+                                    .then(function (e) {
+                                        done();
+                                    })
                             })
-                    )
+                    })
             })
-    });
+    })
 
-   after(function (done) {
+    after(function (done) {
         request.post('/meta/' + test_data_type + '/' + test_entry_name + '/delete')
             .set('x-access-token', metaToken)
             .then(function (err, res) {
@@ -55,9 +55,10 @@ describe('datatype.test - 各种数据类型保存查询测试', function () {
                     .set('x-access-token', metaToken)
                     .then(function () {
                         console.log("测试完成,关闭API服务器");
-                       KnexManager.destroy();
-                       webServer.stop();
-                       done();
+                        var KnexManager = require("./../db/KnexManager");
+                        KnexManager.destroy();
+                        webServer.stop();
+                        done();
                     })
             })
 
@@ -90,12 +91,12 @@ describe('datatype.test - 各种数据类型保存查询测试', function () {
                 res.body.should.have.property('code', '000');
                 console.log(res.body)
                 res.body.should.have.property('data', 2);
-                setTimeout(done,100);
+                setTimeout(done, 100);
             });
     });
 
     it('读取各种数据类型', function (done) {
-        var test_add = {id:1};
+        var test_add = { id: 1 };
         this.timeout(2000);
         request.post('/data/' + test_data_type + '/' + test_entry_name + '/get')
             .set('x-access-token', token)

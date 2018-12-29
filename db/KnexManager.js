@@ -32,9 +32,8 @@ class KnexManager {
         if(KnexManager.instance != null){
             setTimeout(function(){
                 KnexManager.instance.knex.destroy();
-            },45000);
+            },50000);
         }
     }
 }
-
 module.exports = KnexManager

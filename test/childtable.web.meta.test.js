@@ -1,4 +1,3 @@
-var KnexManager = require("../db/KnexManager");
 var webServer = require('../index');
 var should = require('should');
 var supertest = require('supertest');
@@ -58,7 +57,7 @@ var test_entry_update_data = {
         "resume.detail": { "name": "detail", "type": "string", "length": 255 }
     },
     "delete": [
-        "family","resume.old"
+        "family", "resume.old"
     ]
 }
 
@@ -68,13 +67,25 @@ let test_entry_name = "_childTable_";
 describe('childtable.web.meta.test -  子从表元数据数据库服务操作 测试', function () {
 
     var token = null;
-    before(function () {
-        return request.post('/metaAuth')
+    var othertoken = null;
+    before(function (done) {
+        this.timeout(4000);
+        request.post('/auth')
             .send({ name: 'admin', password: '123456' })
             .then(function (res) {
-                token = res.body.token;
-                request.post('/meta/' + test_data_type + '/add')
-                    .set('x-access-token', token).then()
+                othertoken = res.body.token;
+            })
+            .then(function () {
+                request.post('/metaAuth')
+                    .send({ name: 'admin', password: '123456' })
+                    .set('x-access-token', othertoken)
+                    .then(function (res) {
+                        token = res.body.token;
+                        request.post('/meta/' + test_data_type + '/add')
+                            .set('x-access-token', token).then(function(){
+                                done();
+                            })
+                    })
             })
     });
 
@@ -83,6 +94,7 @@ describe('childtable.web.meta.test -  子从表元数据数据库服务操作 �
             .set('x-access-token', token)
             .then(function () {
                 console.log("测试完成,关闭API服务器");
+                var KnexManager = require("../db/KnexManager");
                 KnexManager.destroy();
                 webServer.stop();
                 done();

@@ -8,13 +8,22 @@ var codeBase64 = "c2VydmljZSgncGFyYW0nLCBmdW5jdGlvbiAodjEsIHYyLCB2MywgZGIsIHJlcG
 
 describe('category.test - 业务分类 测试', function () {
   var token = null;
- 
-  before(function () {
-    return request.post('/metaAuth')
-      .send({ name: 'admin', password: '123456' })
-      .then(function (res) {
-        token = res.body.token;
-      });
+  var othertoken = null;
+  before(function (done) {
+    this.timeout(4000);
+        request.post('/auth')
+            .send({ name: 'admin', password: '123456' })
+            .then(function (res) {
+              othertoken = res.body.token;
+            }).then(function(){
+                request.post('/metaAuth')
+                .send({ name: 'admin', password: '123456' })
+                .set('x-access-token', othertoken)
+                .then(function (res) {
+                  token = res.body.token;
+                  done();
+                })
+            })
   });
 
   after(function () {

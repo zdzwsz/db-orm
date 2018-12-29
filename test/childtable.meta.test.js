@@ -1,4 +1,4 @@
-var KnexManager = require("./../db/KnexManager");
+
 var TableMeta = require("./../db/TableMeta")
 var webServer = require('../index');
 var should = require('should');
@@ -65,6 +65,7 @@ describe('childtable.meta.test -  子从表元数据数据库操作 测试', fun
 
     after(function () {
         console.log("close database pool!");
+        var KnexManager = require("./../db/KnexManager");
         KnexManager.destroy();
         webServer.stop();
     })
