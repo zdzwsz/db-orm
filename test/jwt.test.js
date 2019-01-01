@@ -60,7 +60,7 @@ describe('jwt.test - JWT 测试', function () {
       .expect('Content-Type', /json/)
       .end(function (err, res) {
         should.not.exist(err);
-        res.body.should.have.property('success', false);
+        res.body.should.have.property('success', true);
         console.log(res.body);
         done(err);
       });
