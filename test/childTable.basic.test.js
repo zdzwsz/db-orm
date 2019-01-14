@@ -100,7 +100,7 @@ describe("childTable.basic.test - 基础数据服务测试(子从表) basicServi
             console.log("返回主键值:" + data)
             setTimeout(() => {
                 done(e);
-            }, 60);
+            }, 100);
         })
     })
 

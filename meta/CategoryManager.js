@@ -23,12 +23,12 @@ var CategoryManager = {
     add: function (service) {
         var file = this.getFileName(service);
         try {
-            if(fs.existsSync(file)){
-                return ResCode.error(ResCode.MetaAdd,"Service already exists");
-            }else{
+            if (fs.existsSync(file)) {
+                return ResCode.error(ResCode.MetaAdd, "Service already exists");
+            } else {
                 fs.mkdirSync(file);
             }
-            
+
             return ResCode.OK;
         } catch (e) {
             logger.error(e);
@@ -37,43 +37,61 @@ var CategoryManager = {
     },
 
     getEntity: function (service) {
+        let o = this.getEntityObj(service)
+        if (o instanceof Error) {
+            return ResCode.error(ResCode.MetaAdd, o);
+        } else {
+            return ResCode.data(o);
+        }
+    },
+
+    getService: function (service) {
+        let o = this.getServiceObj(service)
+        if (o instanceof Error) {
+            return ResCode.error(ResCode.MetaAdd, o);
+        } else {
+            return ResCode.data(o);
+        }
+    },
+
+    getEntityObj: function (service) {
         var file = this.getFileName(service);
         try {
             files = fs.readdirSync(file);
             var returnjsons = [];
             for (let i = 0; i < files.length; i++) {
                 let index = files[i].indexOf(".json");
-                if (index > 0) {
-                    returnjsons.push(files[i].substring(0,index));
+                if (index == files[i].length - 5) {
+                    returnjsons.push({name:files[i].substring(0, index)});
                 }
             }
-            return ResCode.data(returnjsons);
+            return returnjsons;
         } catch (e) {
             logger.error(e);
-            return ResCode.error(ResCode.MetaAdd, e);
+            return e;
         }
     },
 
-    getService: function (service) {
+    getServiceObj: function (service) {
         var file = this.getFileName(service);
         try {
             files = fs.readdirSync(file);
             var returnjsons = [];
             for (let i = 0; i < files.length; i++) {
                 let index = files[i].indexOf(".service.js");
-                if (index > 0) {
-                    returnjsons.push(files[i].substring(0,index));
+                if (index == files[i].length - 11) {
+                    returnjsons.push({name:files[i].substring(0, index)});
                 }
             }
-            return ResCode.data(returnjsons);
+            return returnjsons;
         } catch (e) {
             logger.error(e);
-            return ResCode.error(ResCode.MetaAdd, e);
+            return e;
         }
     },
 
-    getWsCode: function (service,name) {
-        var file = this.getFileName(service) + path.sep + name+ ".service.js";
+    getWsCode: function (service, name) {
+        var file = this.getFileName(service) + path.sep + name + ".service.js";
         try {
             var jscode = fs.readFileSync(file);
             returnjsons = new Buffer(jscode).toString('base64');
@@ -84,8 +102,8 @@ var CategoryManager = {
         }
     },
 
-    setWsCode:function (service,name,code){
-        var file = this.getFileName(service) + path.sep + name+ ".service.js";
+    setWsCode: function (service, name, code) {
+        var file = this.getFileName(service) + path.sep + name + ".service.js";
         try {
             var jscode = new Buffer(code, 'base64');
             fs.writeFileSync(file, jscode);
@@ -96,8 +114,8 @@ var CategoryManager = {
         }
     },
 
-    delWsCode:function(service,name){
-        var file = this.getFileName(service) + path.sep + name+ ".service.js";
+    delWsCode: function (service, name) {
+        var file = this.getFileName(service) + path.sep + name + ".service.js";
         try {
             fs.unlinkSync(file);
             return ResCode.OK;
@@ -126,7 +144,13 @@ var CategoryManager = {
                 returnfolder.push(folder[i]);
             }
         }
-        return ResCode.data(returnfolder);
+        var allData = [];
+        for (let i = 0; i < returnfolder.length; i++) {
+            let entitys = this.getEntityObj(returnfolder[i])
+            let apis = this.getServiceObj(returnfolder[i])
+            allData.push({name:returnfolder[i],entitys:entitys,apis:apis})
+        }
+        return ResCode.data(allData);
     },
 
     getFileName: function (service) {

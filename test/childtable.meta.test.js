@@ -72,7 +72,7 @@ describe('childtable.meta.test -  子从表元数据数据库操作 测试', fun
 
     it('增加数据表', function (done) {
         let table_string = JSON.parse(JSON.stringify(table_new))
-        this.timeout(5000);
+        this.timeout(8000);
         var table = TableMeta.load(table_string);
         table.create(function (e) {
             should.not.exist(e);

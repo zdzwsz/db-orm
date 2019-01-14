@@ -44,7 +44,7 @@ describe("basic.test - 基础数据服务测试 basicService", function () {
             should.not.exist(e);
             setTimeout(() => {
                 done(e);
-            }, 100); 
+            }, 200); 
             
         })
     })

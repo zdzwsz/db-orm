@@ -5,9 +5,7 @@ var jwt = require('jsonwebtoken');
 function getServerToken(req, res, user, time) {
     let name = req.body.name;
     let password = req.body.password;
-    console.log("===="+name);
     if (name != user.name) {
-        console.log("=222==="+name);
         res.json({ success: false, message: '未找到授权用户' });
     } else {
         if (user.password != password) {

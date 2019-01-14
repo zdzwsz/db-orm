@@ -32,7 +32,7 @@ class KnexManager {
         if(KnexManager.instance != null){
             setTimeout(function(){
                 KnexManager.instance.knex.destroy();
-            },50000);
+            },80000);
         }
     }
 }

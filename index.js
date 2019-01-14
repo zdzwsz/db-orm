@@ -51,9 +51,14 @@ class WebServer {
     init() {
         this.app.all('*', function(req, res, next) {
             res.header("Access-Control-Allow-Origin", "*");
-            res.header("Access-Control-Allow-Headers", "X-Requested-With");
-            res.header("Access-Control-Allow-Methods","POST,GET");
-            next();
+            res.header("Access-Control-Allow-Headers", "x-access-token");
+            res.header("Access-Control-Allow-Methods","POST,GET,OPTIONS,HEAD");
+            if(req.method.toLocaleLowerCase() === 'options'){
+                res.status(204);
+                return res.json({});
+            }else{
+                next();
+            }
         });
         this.app.use(bodyParser.urlencoded({ extended: false }));
         this.app.use(bodyParser.json());
