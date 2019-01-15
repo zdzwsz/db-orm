@@ -54,7 +54,7 @@ var authentication = {
     },
 
     getMetaToken: function (req, res) {
-        getServerToken(req, res, config.meta, 60 * 5);
+        getServerToken(req, res, config.meta, 60 * 60 * 24);
     },
 
     metaIntercept: function (req, res, next) {
