@@ -51,7 +51,7 @@ class WebServer {
     init() {
         this.app.all('*', function(req, res, next) {
             res.header("Access-Control-Allow-Origin", "*");
-            res.header("Access-Control-Allow-Headers", "x-access-token");
+            res.header("Access-Control-Allow-Headers", "x-access-token,Content-Type");
             res.header("Access-Control-Allow-Methods","POST,GET,OPTIONS,HEAD");
             if(req.method.toLocaleLowerCase() === 'options'){
                 res.status(204);
