@@ -103,7 +103,7 @@ class TableMeta {
             }
         }
     }
-
+    //更加名字查找field
     _getColumn(tableJson, name) {
         for (let i = 0; i < tableJson.fields.length; i++) {
             let column = tableJson.fields[i];
@@ -158,14 +158,14 @@ class TableMeta {
     }
 
     createTable(tableJsons, _this, callback) {
-        if(tableJsons.length==0){
-            if(callback){
+        if (tableJsons.length == 0) {
+            if (callback) {
                 callback();
             }
-        }else{
+        } else {
             this.hasTable(0, tableJsons, _this, callback);
         }
-        
+
     }
 
     hasTable(i, tables, _this, callback) {
@@ -216,8 +216,8 @@ class TableMeta {
     }
 
     deleteTable(i, tableJsons, _this, callback) {
-        if(tableJsons.length == 0){
-            if(callback){
+        if (tableJsons.length == 0) {
+            if (callback) {
                 callback();
             }
             return;
@@ -348,11 +348,83 @@ class TableMeta {
         });
     }
 
+    compareTableMeta(newjson, content, subTableName) {
+        let realTableName = subTableName;
+        if (typeof (subTableName) == "undefined") {
+            subTableName = "";
+            realTableName = "";
+        }
+        else {
+            subTableName = subTableName + ".";
+        }
+        if (typeof (content) == "undefined") {
+            content = { "add": [], "update": {}, "delete": [], "r_primary": [] };
+        }
+        if (newjson.primary != this.json.primary) {
+            content.r_primary.push(subTableName + newjson.primary);
+        }
+        for (let i = 0; i < newjson.fields.length; i++) {
+            if (newjson.fields[i].isnew) {
+                newjson.fields[i].name = subTableName + newjson.fields[i].name;
+                delete newjson.fields[i].isnew;
+                content.add.push(newjson.fields[i]);
+            } else if (newjson.fields[i].delete) {
+                content.delete.push(subTableName + newjson.fields[i].key);
+            } else {
+                if (newjson.fields[i].type == "table") {
+                    this.compareTableMeta(newjson.fields[i].relation, content, newjson.fields[i].name)
+                } else if (newjson.fields[i].key && !this.compareField(newjson.fields[i],realTableName)) {
+                    content.update[subTableName + newjson.fields[i].key] = newjson.fields[i];
+                    delete newjson.fields[i].key;
+                }
+            }
+        }
+    }
+
+    _findField(subTableName,key){
+       if(subTableName){
+          let subJson = this.json.fields.subTableName;
+          if(subJson){
+             return this._getColumn(subJson.relation, key);
+          }
+       }else{
+         return this._getColumn(this.json, key)
+       }
+    }
+
+    compareField(newField, subTableName) {
+        //console.log(newField);
+        let oldField = this._findField(subTableName, newField.key);
+        //console.log(oldField);
+        if (oldField == null) {
+            return false;
+        }
+        if (newField.name === oldField.name && newField.type === oldField.type && newField.notNullable == oldField.notNullable) {
+            if (Array.isArray(newField.length)) {
+                return newField["length"][0] == oldField["length"][0] && newField["length"][1] == oldField["length"][1];
+            } else {
+                //console.log(newField.length);
+                console.log(newField.length == oldField.length);
+                return newField.length == oldField.length
+            }
+        } else {
+            return false;
+        }
+    }
+
     update(json, callback) {
         let tableJsons = this.getMetaTables();
         if (typeof (json) == "object") {
+            if (json.tableName) {
+                //完整格式，对比原文件，得出那些增加，那些删除，那些修改
+                let content = { "add": [], "update": {}, "delete": [], "r_primary": [] };
+                this.compareTableMeta(json,content);
+                console.log(content);
+                json = content;
+            }
             var _this = this
             let jsons = this.updateJson(json, tableJsons);
+            console.log(jsons);
             let addTable = jsons.addTable;
             let delTable = jsons.delTable;
             //console.log(jsons.modify);
@@ -360,10 +432,10 @@ class TableMeta {
                 if (e == null) {
                     _this.deleteTable(0, delTable, _this, function (e) {
                         let modify = jsons.modify;
-                        for(let n= 0;n<modify.length;n++){
-                            if(modify[n].isdel == true){
-                                modify.splice(n,1);
-                                tableJsons.splice(n,1);
+                        for (let n = 0; n < modify.length; n++) {
+                            if (modify[n].isdel == true) {
+                                modify.splice(n, 1);
+                                tableJsons.splice(n, 1);
                             }
                         }
                         let cloneTableJsons = JSON.parse(JSON.stringify(tableJsons));
@@ -397,10 +469,10 @@ class TableMeta {
         }
     }
 
-    deleteForeignKey(tableJson){
-        for(let i =0;i<tableJson.fields.length;i++){
-            if(tableJson.fields[i].name == tableJson.foreign){
-                tableJson.fields.splice(i,1);
+    deleteForeignKey(tableJson) {
+        for (let i = 0; i < tableJson.fields.length; i++) {
+            if (tableJson.fields[i].name == tableJson.foreign) {
+                tableJson.fields.splice(i, 1);
             }
         }
     }
@@ -411,7 +483,7 @@ class TableMeta {
         let delTable = []
         let returnValue = { "addTable": addTable, "delTable": delTable, "modify": null }
         for (let i = 0; i < tableJsons.length; i++) {
-            let sjson = { "add": [], "update": {}, "delete": [], "r_primary": null,"tableName":tableJsons[i].tableName,"isdel":false };
+            let sjson = { "add": [], "update": {}, "delete": [], "r_primary": null, "tableName": tableJsons[i].tableName, "isdel": false };
             if (tableJsons[i].foreign) {
                 jsonMap.set(tableJsons[i].foreign, sjson);
             } else {
@@ -456,7 +528,7 @@ class TableMeta {
                         jsonMap.get("main").delete.push(fieldName);
                     }
                     else {
-                        delTable.push({"tableName":subtable.tableName,"foreign":fieldName});
+                        delTable.push({ "tableName": subtable.tableName, "foreign": fieldName });
                         subtable.isdel = true;
                     }
                 }

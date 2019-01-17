@@ -38,6 +38,43 @@ var table_new = {
     ]
 }
 
+var table_over_update = {
+    "tableName": "test_child_table_users",
+    "primary": "id",
+    "fields": [
+        { "name": "id", "type": "int" },
+        { "key":"name", "name": "name", "type": "string", "length": 120, "notNullable": true },
+        { "name": "name1", "type": "string", "length": 12, "notNullable": true, 'isnew' : true },
+        { "key":"age", "name": "age", "type": "int", "default": 10 , "delete":true},
+        { "name": "birthday", "type": "dateTime" },
+        {
+            "name": "resume", "type": "table", "relation": {
+                "tableName": "test_resume",
+                "primary": "id",
+                "fields": [
+                    { "name": "id", "type": "int" },
+                    { "name": "startTime", "type": "dateTime" },
+                    { "name": "stopTime", "type": "dateTime" },
+                    { "name": "detail", "type": "string" },
+                    { "name": "old", "type": "int" }
+                ]
+            }
+        },
+        {
+            "name": "family", "type": "table", "relation": {
+                "tableName": "test_family",
+                "primary": "name",
+                "fields": [
+                    { "name": "id", "type": "int" },
+                    { 'key':'name',"name": "name", "type": "int" },
+                    { "name": "name11", "type": "string",'isnew':true },
+                    { 'key':'detail',"name": "detail", "type": "string",'delete':true }
+                ]
+            }
+        }
+    ]
+}
+
 var table_update = {
     "add": [
         { "name": "resume.position", "type": "string" },
@@ -61,7 +98,7 @@ var table_update = {
     ]
 }
 
-describe('childtable.meta.test -  子从表元数据数据库操作 测试', function () {
+describe.only('childtable.meta.test -  子从表元数据数据库操作 测试', function () {
 
     after(function () {
         console.log("close database pool!");
@@ -76,6 +113,20 @@ describe('childtable.meta.test -  子从表元数据数据库操作 测试', fun
         var table = TableMeta.load(table_string);
         table.create(function (e) {
             should.not.exist(e);
+            done(e);
+        })
+    })
+
+    it('修改数据表(over)', function (done) {
+        this.timeout(12000);
+        let table_string = JSON.parse(JSON.stringify(table_new))
+        var table = TableMeta.load(table_string);
+        table.update(table_over_update, function (e) {
+            should.not.exist(e);
+            json = table.json;
+            console.log(json);
+            console.log(json.fields[4].relation);
+            console.log(json.fields[5].relation);
             done(e);
         })
     })
