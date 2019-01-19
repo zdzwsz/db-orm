@@ -103,7 +103,7 @@ class TableMeta {
             }
         }
     }
-    //更加名字查找field
+    //根据名字查找field
     _getColumn(tableJson, name) {
         for (let i = 0; i < tableJson.fields.length; i++) {
             let column = tableJson.fields[i];
@@ -119,6 +119,7 @@ class TableMeta {
         let mainTable = {};
         mainTable.tableName = this.tableName;
         mainTable.primary = this.primary;
+        mainTable.detail = this.detail;
         tables.push(mainTable);
         mainTable.fields = [];
         let json = this.json;
@@ -131,9 +132,11 @@ class TableMeta {
                 //console.log("======");
                 let foreign_key = this.cloneColumn(primary);
                 foreign_key.name = json.fields[i].name;
+                foreign_key.detail = json.fields[i].detail;
                 if (foreign_key.type == "increment") {
                     foreign_key.type = "integer"
                 }
+                console.log(foreign_key);
                 subTable.fields.push(foreign_key);
                 subTable.foreign = json.fields[i].name;
                 tables.push(subTable);
@@ -372,6 +375,9 @@ class TableMeta {
                 content.delete.push(subTableName + newjson.fields[i].key);
             } else {
                 if (newjson.fields[i].type == "table") {
+                    let oldSubTable = this._findField(null,newjson.fields[i].name);
+                    //console.log(oldSubTable);
+                    oldSubTable.detail = newjson.fields[i].detail;
                     this.compareTableMeta(newjson.fields[i].relation, content, newjson.fields[i].name)
                 } else if (newjson.fields[i].key && !this.compareField(newjson.fields[i],realTableName)) {
                     content.update[subTableName + newjson.fields[i].key] = newjson.fields[i];
@@ -383,7 +389,7 @@ class TableMeta {
 
     _findField(subTableName,key){
        if(subTableName){
-          let subJson = this.json.fields.subTableName;
+          let subJson = this._getColumn(this.json, subTableName)
           if(subJson){
              return this._getColumn(subJson.relation, key);
           }
@@ -393,18 +399,17 @@ class TableMeta {
     }
 
     compareField(newField, subTableName) {
-        //console.log(newField);
+        //console.log(subTableName+"|"+newField.key);
         let oldField = this._findField(subTableName, newField.key);
         //console.log(oldField);
         if (oldField == null) {
-            return false;
+            return true;
         }
-        if (newField.name === oldField.name && newField.type === oldField.type && newField.notNullable == oldField.notNullable) {
+        oldField.detail = newField.detail;
+        if (newField.name == oldField.name && newField.type == oldField.type && newField.notNullable == oldField.notNullable) {
             if (Array.isArray(newField.length)) {
                 return newField["length"][0] == oldField["length"][0] && newField["length"][1] == oldField["length"][1];
             } else {
-                //console.log(newField.length);
-                console.log(newField.length == oldField.length);
                 return newField.length == oldField.length
             }
         } else {
@@ -413,18 +418,18 @@ class TableMeta {
     }
 
     update(json, callback) {
-        let tableJsons = this.getMetaTables();
         if (typeof (json) == "object") {
             if (json.tableName) {
                 //完整格式，对比原文件，得出那些增加，那些删除，那些修改
                 let content = { "add": [], "update": {}, "delete": [], "r_primary": [] };
                 this.compareTableMeta(json,content);
-                console.log(content);
+                //console.log(content);
                 json = content;
             }
+            let tableJsons = this.getMetaTables();
             var _this = this
             let jsons = this.updateJson(json, tableJsons);
-            console.log(jsons);
+            //console.log(jsons);
             let addTable = jsons.addTable;
             let delTable = jsons.delTable;
             //console.log(jsons.modify);
@@ -454,17 +459,18 @@ class TableMeta {
     updateMerge(tableJsons, addTable, delTable) {
         let newJson = tableJsons[0];
         for (let i = 1; i < tableJsons.length; i++) {
-            let subTable = { "name": tableJsons[i].foreign, "type": "table", "relation": tableJsons[i] };
+            let foreignKey =  this.deleteForeignKey(tableJsons[i]);
+            console.log(foreignKey)
+            let subTable = { "name": tableJsons[i].foreign,'detail':foreignKey.detail, "type": "table", "relation": tableJsons[i] };
             newJson.fields.push(subTable);
-            this.deleteForeignKey(tableJsons[i])
         }
         this.json = newJson;
         this.primary = newJson.primary;
         if (addTable) {
             for (let i = 0; i < addTable.length; i++) {
-                let subTable = { "name": addTable[i].foreign, "type": "table", "relation": addTable[i] };
+                let foreignKey =  this.deleteForeignKey(addTable[i]);
+                let subTable = { "name": addTable[i].foreign, 'detail':foreignKey.detail, "type": "table", "relation": addTable[i] };
                 newJson.fields.push(subTable);
-                this.deleteForeignKey(addTable[i])
             }
         }
     }
@@ -472,7 +478,9 @@ class TableMeta {
     deleteForeignKey(tableJson) {
         for (let i = 0; i < tableJson.fields.length; i++) {
             if (tableJson.fields[i].name == tableJson.foreign) {
+                let returnValue = tableJson.fields[i];
                 tableJson.fields.splice(i, 1);
+                return returnValue;
             }
         }
     }

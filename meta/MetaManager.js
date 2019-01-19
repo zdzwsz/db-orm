@@ -50,6 +50,7 @@ class MetaManager extends EventEmitter {
             this.emit(this.eventName, ResCode.error(ResCode.MetaAddNull));
         }
         var file = this.getFileName(service, name);
+        try {
         var table = TableMeta.load(data);
         var _this = this;
         table.create(function (e) {
@@ -58,10 +59,15 @@ class MetaManager extends EventEmitter {
                 _this.emit(_this.eventName, ResCode.error(ResCode.MetaAdd, e))
                
             } else {
+                console.log(JSON.stringify(data));
                 fs.writeFileSync(file, JSON.stringify(data));
                 _this.emit(_this.eventName, ResCode.OK)
             }
-        });
+        })}
+        catch (e) {
+            logger.error(e)
+            this.emit(this.eventName, ResCode.error(ResCode.MetaAdd, e))
+        }
     }
 
     update(service, name, req) {
@@ -70,6 +76,7 @@ class MetaManager extends EventEmitter {
             this.emit(this.eventName, ResCode.error(ResCode.MetaUpdateNull));
         }
         var file = this.getFileName(service, name);
+        try {
         var table = TableMeta.loadMeta(file);
         var _this = this;
         table.update(data,function(e){
@@ -78,10 +85,15 @@ class MetaManager extends EventEmitter {
                 _this.emit(_this.eventName, ResCode.error(ResCode.MetaUpdate, e))
                
             } else {
+                console.log(JSON.stringify(table.getJsonData()));
                 fs.writeFileSync(file, JSON.stringify(table.getJsonData()));
                 _this.emit(_this.eventName, ResCode.OK)
             }
-        })
+        })}
+        catch (e) {
+            logger.error(e)
+            this.emit(this.eventName, ResCode.error(ResCode.MetaUpdate, e))
+        }
     }
 
     delete(service, name) {
@@ -95,7 +107,7 @@ class MetaManager extends EventEmitter {
             });
         } catch (e) {
             logger.error(e)
-            this.emit(_this.eventName, ResCode.error(ResCode.MetaDelete, e))
+            this.emit(this.eventName, ResCode.error(ResCode.MetaDelete, e))
         }
     }
 

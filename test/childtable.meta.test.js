@@ -117,7 +117,7 @@ describe.only('childtable.meta.test -  子从表元数据数据库操作 测试'
         })
     })
 
-    it('修改数据表(over)', function (done) {
+    it('修改数据表(over 模式)', function (done) {
         this.timeout(12000);
         let table_string = JSON.parse(JSON.stringify(table_new))
         var table = TableMeta.load(table_string);

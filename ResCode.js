@@ -19,7 +19,7 @@ var ResCode = {
           if(Array.isArray(type)  && typeof(e) == 'undefined'){
             return {'code':type[0],'message':type[1]};
           }
-          return {'code':type,'message':e};
+          return {'code':type,'message':e.message};
     },
 
     data:function(data){
