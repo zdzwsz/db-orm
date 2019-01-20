@@ -148,8 +148,14 @@ var CategoryManager = {
         for (let i = 0; i < returnfolder.length; i++) {
             let entitys = this.getEntityObj(returnfolder[i])
             let apis = this.getServiceObj(returnfolder[i])
-            allData.push({name:returnfolder[i],entitys:entitys,apis:apis})
+            let service = {name:returnfolder[i],entitys:entitys,apis:apis};
+            allData.push(service)
+            states = fs.statSync(this.storePath+'/'+returnfolder[i]);
+            service.createTime = states.birthtimeMs;
         }
+        allData.sort(function(a,b){
+            return a["createTime"] > b["createTime"];
+        })
         return ResCode.data(allData);
     },
 
