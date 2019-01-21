@@ -43,10 +43,9 @@ class WebServer {
     }
 
     init() {
-        let configPath = path.resolve('./config');
-        console.log(configPath);
+        let configPath = path.resolve('./config.json');
         require.cache[configPath] = null;
-        this.config = require('./config');
+        this.config = require('./config.json');
         this.auth = require('./authentication');
         this.auth.init(this.config)
         this.app.use(bodyParser.urlencoded({ extended: false }));
@@ -87,6 +86,7 @@ class WebServer {
 
     stop() {
         this.server.close();
+        this.app =null;
         this.auth =null;
         if(this.watcher){
             this.watcher.close();

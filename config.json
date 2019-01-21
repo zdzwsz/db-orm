@@ -1,7 +1,7 @@
 {
   "user": {
     "name": "admin",
-    "password": "1234567",
+    "password": "123456",
     "secret": "myjwttest"
   },
   "modules":"d:/modules",

@@ -37,7 +37,7 @@ describe('petweb.test - 业务服务测试', function () {
       });
   });
 
-  it('购物车-得到商品', function (done) {
+  it.skip('购物车-得到商品', function (done) {
     request.post('/data/petshop/get')
       .set('x-access-token', token)
       .expect('Content-Type', /json/)
@@ -48,7 +48,7 @@ describe('petweb.test - 业务服务测试', function () {
       });
   });
 
-  it('购物车-统计商品', function (done) {
+  it.skip('购物车-统计商品', function (done) {
     var test_add = {"p0":{"guid":UUID.v1(),"petid":2,"price":1,"amount":1}};
     request.post('/data/petshop/total')
       .set('x-access-token', token)

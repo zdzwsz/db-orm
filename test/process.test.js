@@ -21,7 +21,7 @@ describe('process.test - processManager.js 测试', function () {
     webServer.stop();
   });
 
-  it('测试服务加载', function (done) {
+  it.skip('测试服务加载', function (done) {
       var processLoader = require("../data/ProcessLoader");
       var process = processLoader.loadProcess("petshop","get");
       should.exist(process);

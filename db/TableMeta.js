@@ -1,4 +1,4 @@
-knex = require("./KnexManager").getKnex();
+const knex = require("./KnexManager").getKnex();
 var fs = require('fs');
 const logger = require("./../log")
 class TableMeta {

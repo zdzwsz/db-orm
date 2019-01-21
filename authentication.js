@@ -15,6 +15,8 @@ function getServerToken(req, res, user, time) {
                 message: 'init',
                 token: ID
             });
+        }else{
+            res.json({ success: false, message: '请初始化服务！' });
         }
         return;
     }
@@ -37,9 +39,6 @@ function getServerToken(req, res, user, time) {
     }
 }
 
-function isInit(){
-    return typeof(config.modules)=="undefined" || typeof(config.meta)=="undefined";
-}
 
 function serverIntercept(req, res, next, secret) {
     var token = req.body.token || req.query.token || req.headers['x-access-token'];
@@ -87,7 +86,6 @@ var authentication = {
         serverIntercept(req, res, next, this.config.meta.secret);
     },
     init:function(config){
-         console.log(config)
         this.config = config;
      }
 }

@@ -1,7 +1,9 @@
-var config = require('../config')
-
+var path = require('path');
 class KnexManager {
     constructor() {
+        let configPath = path.resolve('./config.json');
+        require.cache[configPath] = null;
+        var config = require('../config')
         this.knex = require('knex')(
             {
                 client: config.database.dbtype, //指明数据库类型，还可以是mysql，sqlite3等等 
@@ -35,6 +37,7 @@ class KnexManager {
         if(KnexManager.instance != null){
             setTimeout(function(){
                 KnexManager.instance.knex.destroy();
+                KnexManager.instance = null;
             },time);
         }
     }
