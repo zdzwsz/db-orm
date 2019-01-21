@@ -1,10 +1,23 @@
-var config = require('./config');
+
 const logger = require("./log");
 var jwt = require('jsonwebtoken');
+var UUID = require('uuid');
+var ID = UUID.v1();
 
 function getServerToken(req, res, user, time) {
     let name = req.body.name;
     let password = req.body.password;
+    if(!user){
+        console.log("config model......");
+        if(name =="superman" && password =="123456"){
+            res.json({
+                success: true,
+                message: 'init',
+                token: ID
+            });
+        }
+        return;
+    }
     if (name != user.name) {
         res.json({ success: false, message: '未找到授权用户' });
     } else {
@@ -24,18 +37,30 @@ function getServerToken(req, res, user, time) {
     }
 }
 
+function isInit(){
+    return typeof(config.modules)=="undefined" || typeof(config.meta)=="undefined";
+}
+
 function serverIntercept(req, res, next, secret) {
     var token = req.body.token || req.query.token || req.headers['x-access-token'];
     if (token) {
-        jwt.verify(token, secret, function (err, user) {
-            if (err) {
-                return res.json({ success: false, message: '无效的token.' });
-            } else {
-                req.user = user;
-                logger.info(user.user + " access api web");
+        if(!secret){
+            if(token == ID){
                 next();
+            }else{
+                return res.json({ success: false, message: '无效的token.' });
             }
-        });
+        }else{
+            jwt.verify(token, secret, function (err, user) {
+                if (err) {
+                    return res.json({ success: false, message: '无效的token.' });
+                } else {
+                    req.user = user;
+                    logger.info(user.user + " access api web");
+                    next();
+                }
+            });
+        }
     } else {
         return res.status(403).send({
             success: false,
@@ -45,22 +70,26 @@ function serverIntercept(req, res, next, secret) {
 }
 
 var authentication = {
+    config:null,
     getToken: function (req, res) {
-        getServerToken(req, res, config.user);
+        getServerToken(req, res, this.config.user);
     },
 
     intercept: function (req, res, next) {
-        serverIntercept(req, res, next, config.user.secret);
+        serverIntercept(req, res, next, this.config.user.secret);
     },
 
     getMetaToken: function (req, res) {
-        getServerToken(req, res, config.meta, 60 * 60 * 24);
+        getServerToken(req, res, this.config.meta, 60 * 60 * 24);
     },
 
     metaIntercept: function (req, res, next) {
-        serverIntercept(req, res, next, config.meta.secret);
-    }
-
+        serverIntercept(req, res, next, this.config.meta.secret);
+    },
+    init:function(config){
+         console.log(config)
+        this.config = config;
+     }
 }
 
 module.exports = authentication;

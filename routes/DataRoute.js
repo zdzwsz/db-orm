@@ -1,7 +1,7 @@
 const DataManager = require('../data/DataManager');
 const processManager = require('../data/ProcessManager');
 const logger = require("../log")
-require("./Date");
+require("./DateUtil");
 var Router = require('express').Router;
 
 class DataRoute{

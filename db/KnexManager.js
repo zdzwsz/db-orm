@@ -28,11 +28,14 @@ class KnexManager {
         return config.database.dbtype ===type;
     }
 
-    static destroy(){
+    static destroy(time){
+        if(typeof(time)=="undefined"){
+            time = 80000;
+        }
         if(KnexManager.instance != null){
             setTimeout(function(){
                 KnexManager.instance.knex.destroy();
-            },80000);
+            },time);
         }
     }
 }
