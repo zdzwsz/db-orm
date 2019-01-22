@@ -57,7 +57,6 @@ class ClassManager {
         ClassManager.fileTimeMap.set(filepath, ltime);
     }
 
-
 }
 ClassManager.classMap = new Map();
 ClassManager.fileTimeMap = new Map();

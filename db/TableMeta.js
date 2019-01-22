@@ -1,9 +1,11 @@
-const knex = require("./KnexManager").getKnex();
+let KnexManager = require("./KnexManager");
+let knex = null;
 var fs = require('fs');
 const logger = require("./../log")
 class TableMeta {
-
     constructor(json) {
+        knex = null;
+        knex = KnexManager.getKnex();
         this.tableName = json.tableName;
         this.fields = json.fields;
         this.primary = json.primary;

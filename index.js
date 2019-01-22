@@ -54,14 +54,14 @@ class WebServer {
     }
 
     tokenService(){
-        this.app.use('/metaAuth', this.auth.getMetaToken.bind(this.auth));
-        this.app.use('/auth', this.auth.getToken.bind(this.auth));
+        this.app.use('/metaAuth', this.auth.getMetaToken);
+        this.app.use('/auth', this.auth.getToken);
     }
 
     dataService(){
-        var metaRouter = new MetaRouter(this.auth.metaIntercept.bind(this.auth));
+        var metaRouter = new MetaRouter(this.auth.metaIntercept);
         this.app.use('/meta', metaRouter.router);
-        var dataRouter = new DataRouter(this.auth.intercept.bind(this.auth));
+        var dataRouter = new DataRouter(this.auth.intercept);
         this.app.use('/data', dataRouter.router);
     }
 

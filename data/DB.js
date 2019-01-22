@@ -1,4 +1,5 @@
-const knex = require("../db/KnexManager").getKnex();
+let KnexManager = require("../db/KnexManager");
+let knex = null;
 var fs = require("fs");
 const logger = require("../log")
 var path = require("path");
@@ -7,6 +8,7 @@ const LogicError = require("./LogicError");
 class DB {
     constructor() {
         this.init();
+        knex = KnexManager.getKnex();
         if (DB.masterMap.size == 0) {
             this.loadTableMeta();
         }

@@ -21,10 +21,10 @@ function getServerToken(req, res, user, time) {
         return;
     }
     if (name != user.name) {
-        res.json({ success: false, message: '未找到授权用户' });
+        res.json({ success: false, message: '用户名/密码错误' });
     } else {
         if (user.password != password) {
-            res.json({ success: false, message: '用户密码错误' });
+            res.json({ success: false, message: '用户名/密码错误' });
         } else {
             time = time || 60 * 60 * 24
             var token = jwt.sign({ "user": "admin" }, user.secret, {
@@ -68,25 +68,27 @@ function serverIntercept(req, res, next, secret) {
     }
 }
 
+let config ={};
+
 var authentication = {
     config:null,
     getToken: function (req, res) {
-        getServerToken(req, res, this.config.user);
+        getServerToken(req, res, config.user);
     },
 
     intercept: function (req, res, next) {
-        serverIntercept(req, res, next, this.config.user.secret);
+        serverIntercept(req, res, next, config.user.secret);
     },
 
     getMetaToken: function (req, res) {
-        getServerToken(req, res, this.config.meta, 60 * 60 * 24);
+        getServerToken(req, res, config.meta, 60 * 60 * 24);
     },
 
     metaIntercept: function (req, res, next) {
-        serverIntercept(req, res, next, this.config.meta.secret);
+        serverIntercept(req, res, next, config.meta.secret);
     },
-    init:function(config){
-        this.config = config;
+    init:function(initConfig){
+        config = initConfig;
      }
 }
 

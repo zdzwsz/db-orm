@@ -1,4 +1,5 @@
-const knex = require("./KnexManager").getKnex();
+let KnexManager = require("./KnexManager");
+let knex = null;
 const logger = require("./../log")
 var Promise = require('bluebird');
 
@@ -6,6 +7,7 @@ var Promise = require('bluebird');
 class BasicService {
 
     constructor(json) {
+        knex = KnexManager.getKnex();
         this.json = json;
         this.init();
     }
