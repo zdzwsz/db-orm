@@ -1,20 +1,20 @@
 {
-  "user": {
-    "name": "admin",
-    "password": "123456",
-    "secret": "myjwttest"
-  },
-  "modules":"d:/modules",
-  "database": {
-    "dbtype":"mysql",
-    "host": "127.0.0.1",
-    "user": "root",
-    "password": "123456",
-    "dbname": "test"
-  },
-  "meta":{
-    "secret": "mytest",
-    "name": "admin",
-    "password": "123456"
-  }
+    "user": {
+        "name": "admin",
+        "password": "123456",
+        "secret": "myjwttest"
+    },
+    "modules": "d:/modules",
+    "database": {
+        "dbtype": "mysql",
+        "host": "127.0.0.1",
+        "user": "root",
+        "password": "123456",
+        "dbname": "test"
+    },
+    "meta": {
+        "secret": "mytest",
+        "name": "admin",
+        "password": "123456"
+    }
 }

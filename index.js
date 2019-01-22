@@ -42,12 +42,20 @@ class WebServer {
         });
     }
 
-    init() {
+    reloadConfig(){
         let configPath = path.resolve('./config.json');
         require.cache[configPath] = null;
         this.config = require('./config.json');
-        this.auth = require('./authentication');
         this.auth.init(this.config)
+    }
+
+    loadConfig(){
+        this.reloadConfig();
+    }
+
+    init() {
+        this.auth = require('./authentication');
+        this.loadConfig();
         this.app.use(bodyParser.urlencoded({ extended: false }));
         this.app.use(bodyParser.json());
         this.app.use(log4js.connectLogger(logger, { level: 'auto' }));

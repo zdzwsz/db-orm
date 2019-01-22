@@ -1,8 +1,11 @@
 
 const logger = require("../log")
 var Router = require('express').Router;
-
-
+var fs = require("fs");
+var path = require('path');
+var knexManager = require("./../db/KnexManager");
+let configPath = path.resolve('config.json')
+console.log(configPath)
 class SetupRoute {
 
     constructor(intercept) {
@@ -24,18 +27,50 @@ class SetupRoute {
 
         this.router.post('/restart', function (req, res) {
             try {
-                var knexManager = require("./../db/KnexManager");
                 var webServer = require('../index');
                 knexManager.destroy(0);
                 webServer.stop();
-                res.json({ code: "000", message: 'ok' });
                 setTimeout(() => {
                     webServer.start();
+                    res.json({ code: "000", message: 'ok' });
                 }, 1000);
             } catch (e) {
                 res.json({ code: "001", message: e.message });
             }
 
+        });
+
+        this.router.post('/pwd', function (req, res) {
+            try {
+                var data = req.body;
+                let config = require("../config");
+                if(!data.user && !data.meta){
+                    res.json({ code: "001", message: '更新密码需要输入旧密码和新密码' });
+                        return;
+                }
+                if (data.user) {
+                    if (config.user.password == data.user.oldPassword) {
+                        config.user.password = data.user.newPassword;
+                    } else {
+                        res.json({ code: "001", message: '你输入的密码错误' });
+                        return;
+                    }
+                }
+                if (data.meta) {
+                    if (config.meta.password == data.meta.oldPassword) {
+                        config.meta.password = data.meta.newPassword;
+                    } else {
+                        res.json({ code: "001", message: '你输入的密码错误' });
+                        return;
+                    }
+                }
+                fs.writeFileSync(configPath, JSON.stringify(config));
+                var webServer = require('../index');
+                webServer.reloadConfig();
+                res.json({ code: "000", message: 'ok' });
+            } catch (e) {
+                res.json({ code: "009", message: e.message });
+            }
         });
     }
 
