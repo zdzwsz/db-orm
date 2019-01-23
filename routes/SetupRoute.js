@@ -5,12 +5,12 @@ var fs = require("fs");
 var path = require('path');
 var knexManager = require("./../db/KnexManager");
 let configPath = path.resolve('config.json')
-console.log(configPath)
 class SetupRoute {
 
     constructor(intercept) {
         this.intercept = intercept;
         this.router = Router();
+        this.filter();
         this.init();
     }
 
@@ -21,6 +21,7 @@ class SetupRoute {
             if (_this.validate(data)) {
                 fs.writeFileSync('./config.json', JSON.stringify(data));
                 res.json({ code: "000", message: 'ok' });
+                return;
             }
             res.json({ code: "001", message: 'error' });
         });
@@ -30,6 +31,7 @@ class SetupRoute {
                 var webServer = require('../index');
                 knexManager.destroy(0);
                 webServer.stop();
+                _this.clareCache();
                 setTimeout(() => {
                     webServer.start();
                     res.json({ code: "000", message: 'ok' });
@@ -65,6 +67,7 @@ class SetupRoute {
                     }
                 }
                 fs.writeFileSync(configPath, JSON.stringify(config));
+                _this.clareCache();
                 var webServer = require('../index');
                 webServer.reloadConfig();
                 res.json({ code: "000", message: 'ok' });
@@ -78,6 +81,13 @@ class SetupRoute {
         this.router.use(this.intercept);
     }
 
+    clareCache(){
+        let configPath = path.resolve('./config.json');
+        require.cache[configPath] = null;
+        let modulesPath = path.resolve('./ModulesPath.js');
+        require.cache[modulesPath] = null;
+    }
+
     validate(config) {
         if (!config || config == null) {
             logger.error("please config file <config.js>");
@@ -88,9 +98,9 @@ class SetupRoute {
             logger.error("please config file <config.js>,set modules value");
             ok = false;
         } else {
-            if (!fs.existsSync(this.config.modules)) {
+            if (!fs.existsSync(config.modules)) {
                 try {
-                    fs.mkdirSync(this.config.modules)
+                    fs.mkdirSync(config.modules)
                 } catch (e) {
                     logger.error(e);
                     ok = false;
@@ -108,7 +118,6 @@ class SetupRoute {
         }
         return ok
     }
-
 }
 
 module.exports = SetupRoute

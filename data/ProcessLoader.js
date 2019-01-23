@@ -7,7 +7,9 @@ class ProcessLoader {
     static init() {
         global.service = this.service;
         global.slog = logger;
-        let folder = require("../ModulesPath") + path.sep;
+        let modulesPath = require("../ModulesPath");
+        if(modulesPath =="")return;
+        let folder = modulesPath + path.sep;
         let files = fs.readdirSync(folder)
         files.forEach(function (item) {
             let stat = fs.lstatSync(folder + item)

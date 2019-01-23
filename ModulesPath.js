@@ -1,4 +1,8 @@
 var path = require('path');
 let modules = require("./config").modules
-modules = path.resolve(modules);
+if(modules){
+    modules = path.resolve(modules);
+}else{
+    modules ="";
+}
 module.exports = modules;

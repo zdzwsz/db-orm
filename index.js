@@ -18,7 +18,12 @@ class WebServer {
     static getWebServer(parameter) {
         let config = null;
         if (!fs.existsSync("./config.json")) {
-            config = {}
+            config = {
+                "user": {},
+                "modules": "",
+                "database": {},
+                "meta": {}
+            }
             fs.writeFileSync('./config.json',JSON.stringify(config));
         }
         let port = 8080;
@@ -43,8 +48,6 @@ class WebServer {
     }
 
     reloadConfig(){
-        let configPath = path.resolve('./config.json');
-        require.cache[configPath] = null;
         this.config = require('./config.json');
         this.auth.init(this.config)
     }

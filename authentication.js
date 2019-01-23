@@ -7,7 +7,7 @@ var ID = UUID.v1();
 function getServerToken(req, res, user, time) {
     let name = req.body.name;
     let password = req.body.password;
-    if(!user){
+    if(typeof(user)=="undefined" || user==null || typeof(user.name)=="undefined"){
         console.log("config model......");
         if(name =="superman" && password =="123456"){
             res.json({
@@ -16,7 +16,7 @@ function getServerToken(req, res, user, time) {
                 token: ID
             });
         }else{
-            res.json({ success: false, message: '请初始化服务！' });
+            res.json({ success: false, message: 'init' });
         }
         return;
     }
