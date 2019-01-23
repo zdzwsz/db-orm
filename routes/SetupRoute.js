@@ -5,6 +5,8 @@ var fs = require("fs");
 var path = require('path');
 var knexManager = require("./../db/KnexManager");
 let configPath = path.resolve('config.json')
+var UUID = require('uuid');
+
 class SetupRoute {
 
     constructor(intercept) {
@@ -12,6 +14,7 @@ class SetupRoute {
         this.router = Router();
         this.filter();
         this.init();
+        this.restart=this.restart.bind(this);
     }
 
     init() {
@@ -19,8 +22,14 @@ class SetupRoute {
         this.router.post('/config', function (req, res) {
             var data = req.body;
             if (_this.validate(data)) {
+                if(!data.user.secret){
+                    data.user.secret = UUID.v4();
+                }
+                if(!data.meta.secret){
+                    data.meta.secret = UUID.v4();
+                }
                 fs.writeFileSync('./config.json', JSON.stringify(data));
-                res.json({ code: "000", message: 'ok' });
+                _this.restart(res);
                 return;
             }
             res.json({ code: "001", message: 'error' });
@@ -28,14 +37,7 @@ class SetupRoute {
 
         this.router.post('/restart', function (req, res) {
             try {
-                var webServer = require('../index');
-                knexManager.destroy(0);
-                webServer.stop();
-                _this.clareCache();
-                setTimeout(() => {
-                    webServer.start();
-                    res.json({ code: "000", message: 'ok' });
-                }, 1000);
+               _this.restart(res);
             } catch (e) {
                 res.json({ code: "001", message: e.message });
             }
@@ -86,6 +88,17 @@ class SetupRoute {
         require.cache[configPath] = null;
         let modulesPath = path.resolve('./ModulesPath.js');
         require.cache[modulesPath] = null;
+    }
+
+    restart(res){
+        var webServer = require('../index');
+        knexManager.destroy(0);
+        webServer.stop();
+        this.clareCache();
+        setTimeout(() => {
+            webServer.start();
+            res.json({ code: "000", message: 'ok' });
+        }, 1000);
     }
 
     validate(config) {
