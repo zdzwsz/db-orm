@@ -56,7 +56,7 @@ class SetupRoute {
                     if (config.user.password == data.user.oldPassword) {
                         config.user.password = data.user.newPassword;
                     } else {
-                        res.json({ code: "001", message: '你输入的密码错误' });
+                        res.json({ code: "001", message: '你输入的旧密码错误' });
                         return;
                     }
                 }
@@ -64,7 +64,7 @@ class SetupRoute {
                     if (config.meta.password == data.meta.oldPassword) {
                         config.meta.password = data.meta.newPassword;
                     } else {
-                        res.json({ code: "001", message: '你输入的密码错误' });
+                        res.json({ code: "001", message: '你输入的旧密码错误' });
                         return;
                     }
                 }
