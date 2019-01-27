@@ -72,7 +72,7 @@ class WebServer {
     dataService(){
         var metaRouter = new MetaRouter(this.auth.metaIntercept);
         this.app.use('/meta', metaRouter.router);
-        var dataRouter = new DataRouter(this.auth.intercept);
+        var dataRouter = new DataRouter(this.auth.intercept,metaRouter.getServerStatus());
         this.app.use('/data', dataRouter.router);
     }
 

@@ -162,6 +162,19 @@ class TableMeta {
         this.createTable(tableJsons, _this, callback);
     }
 
+    dataSyn(callback){
+        var _this = this;
+        knex.schema.hasTable(this.tableName).then(function (exists) {
+            if (!exists) {
+                _this.create(callback);
+            }else{
+                if (callback) {
+                    callback();
+                }
+            }
+        });
+    }
+
     createTable(tableJsons, _this, callback) {
         if (tableJsons.length == 0) {
             if (callback) {

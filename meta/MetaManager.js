@@ -85,7 +85,7 @@ class MetaManager extends EventEmitter {
                 _this.emit(_this.eventName, ResCode.error(ResCode.MetaUpdate, e))
                
             } else {
-                console.log(JSON.stringify(table.getJsonData()));
+                //console.log(JSON.stringify(table.getJsonData()));
                 fs.writeFileSync(file, JSON.stringify(table.getJsonData()));
                 _this.emit(_this.eventName, ResCode.OK)
             }

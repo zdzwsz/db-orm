@@ -12,6 +12,10 @@ class MetaRoute{
         this.init();
     }
 
+    getServerStatus(){
+        return categoryManager.statusMap;
+    }
+
     init(){
        this.filter();
        this.postEntity();
@@ -48,6 +52,18 @@ class MetaRoute{
             logger.info("delete service");
             let service = req.params.service;
             res.json(categoryManager.service(service, 'delete'));
+        });
+
+        this.router.post('/:service/stop', function (req, res) {
+            logger.info("stop service");
+            let service = req.params.service;
+            res.json(categoryManager.service(service, 'stop'));
+        });
+
+        this.router.post('/:service/start', function (req, res) {
+            logger.info("start service");
+            let service = req.params.service;
+            res.json(categoryManager.service(service, 'start'));
         });
 
         this.router.post('/:service/entity', function (req, res) {
