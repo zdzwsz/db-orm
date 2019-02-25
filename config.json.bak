@@ -1,1 +1,20 @@
-{"user":{"name":"user","password":"123456","secret":"a3860b20-4d9f-478b-a213-05a42ff70bd0"},"meta":{"name":"admin","password":"123456","secret":"caac9e5f-da90-4470-9f00-3c829ed63a27"},"modules":"d:/modules","database":{"dbtype":"mysql","host":"127.0.0.1","user":"root","password":"123456","dbname":"test"}}
+{
+    "user":{
+        "name":"user",
+        "password":"123456",
+        "secret":"a3860b20-4d9f-478b-a213-05a42ff70bd0"
+        },
+    "meta":{
+        "name":"admin",
+        "password":"123456",
+        "secret":"caac9e5f-da90-4470-9f00-3c829ed63a27"
+        },
+    "modules":"d:/modules",
+    "database":{
+        "dbtype":"mysql",
+        "host":"127.0.0.1",
+        "user":"root",
+        "password":"123456",
+        "dbname":"test"
+        }
+}

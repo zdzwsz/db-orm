@@ -16,6 +16,7 @@ var CategoryManager = {
             if (!fs.existsSync(this.statusFilePath)) {
                 fs.writeFileSync(this.statusFilePath, JSON.stringify([...this.statusMap]));
             }
+            console.log("init module....." + this.statusFilePath);
             this.statusMap = new Map(require(this.statusFilePath));
         }
     },
@@ -74,8 +75,8 @@ var CategoryManager = {
                 return ResCode.error(ResCode.MetaAdd, "Service already exists");
             } else {
                 fs.mkdirSync(file);
-                this.statusMap.push(service, false);
-                fs.writeFileSync(this.statusFilePath, JSON.stringify(this.statusMap));
+                this.statusMap.set(service, false);
+                fs.writeFileSync(this.statusFilePath, JSON.stringify([...this.statusMap]));
             }
             return ResCode.OK;
         } catch (e) {
@@ -178,7 +179,7 @@ var CategoryManager = {
         try {
             fs.rmdirSync(file);
             this.statusMap.delete(this.statusFilePath);
-            fs.writeFileSync(this.statusFilePath, JSON.stringify(this.statusMap));
+            fs.writeFileSync(this.statusFilePath, JSON.stringify([...this.statusMap]));
             return ResCode.OK;
         } catch (e) {
             logger.error(e);
