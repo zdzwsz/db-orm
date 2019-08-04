@@ -27,7 +27,7 @@ class WebServer {
             }
             fs.writeFileSync('./config.json',JSON.stringify(config));
         }
-        let port = 8080;
+        let port = 8088;
         if(parameter.length >2 && parameter[0] == "p"){
             port = parseInt(parameter[0]);
         }
