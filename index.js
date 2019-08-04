@@ -3,6 +3,7 @@ var bodyParser = require('body-parser');
 var MetaRouter = require('./routes/MetaRoute');
 var DataRouter = require('./routes/DataRoute');
 var SetupRouter = require('./routes/SetupRoute');
+
 var log4js = require('log4js');
 var logger = require('./log');
 var fs = require("fs");
@@ -81,6 +82,11 @@ class WebServer {
         this.app.use('/setup', setupRouter.router);
     }
 
+    help(){
+        var helpRouter = require('./routes/HelpRoute');
+        this.app.use('/', helpRouter);
+    }
+
     start() {
         this.app = express();
         this.cors();
@@ -88,6 +94,7 @@ class WebServer {
         this.tokenService();
         this.dataService();
         this.setupService();
+        this.help();
         this.server = this.app.listen(this.port);
         logger.info("server start at:" + this.port);
         if(this.config.modules){
